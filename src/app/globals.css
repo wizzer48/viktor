@@ -1,0 +1,60 @@
+@import "tailwindcss";
+@variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-viktor-bg: var(--viktor-bg);
+  --color-viktor-blue: var(--viktor-blue);
+  --color-viktor-slate: var(--viktor-slate);
+  --color-viktor-surface: var(--viktor-surface);
+  --color-viktor-border: var(--viktor-border);
+
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-jetbrains-mono);
+}
+
+:root {
+  /* Viktor Theme - Light Mode (Default) */
+  --background: #F1F5F9;
+  /* Slate 100 - Slightly darker than pure white for depth */
+  --foreground: #0F172A;
+  /* Slate 900 - High contrast text */
+
+  --viktor-bg: #F1F5F9;
+  --viktor-blue: #00B4D8;
+  /* Electric Cyan (Keep Brand Color) */
+  --viktor-navy: #1e3a8a;
+  /* Deep Navy (Blue 900) */
+  --viktor-slate: #475569;
+  /* Slate 600 - Darker for readability */
+  --viktor-surface: #FFFFFF;
+  /* White Cards */
+  --viktor-border: #CBD5E1;
+  /* Slate 300 - Visible borders */
+}
+
+.dark {
+  /* Viktor Theme - Dark Mode */
+  --background: #1A202C;
+  /* Deep Anthracite/Slate */
+  --foreground: #FFFFFF;
+  /* White Text */
+
+  --viktor-bg: #1A202C;
+  --viktor-blue: #00B4D8;
+  /* Electric Cyan */
+  --viktor-slate: #94A3B8;
+  /* Metallic Grey */
+  --viktor-surface: #2D3748;
+  /* Card Backgrounds */
+  --viktor-border: #4A5568;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}

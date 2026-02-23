@@ -1,0 +1,120 @@
+info@interra.com.tr
+444 97 40
+AnasayfaÜrünlerKNX Sistem CihazlarıKNX Dokunmatik PanelleriX10 Dokunmatik Paneller
+iX10 - 10.1" KNX Dokunmatik Panel
+slide 5 to 6 of 25
+iX10 Dokunmatik Paneller
+iX10 - 10.1" KNX Dokunmatik Panel
+
+
+
+iX10, tüm otomasyon sisteminizi tek bir merkezi noktadan yönetmek için tasarlanmıştır. Anahtarlar, sensörler, aydınlatma, ısıtma, kameralar ve alarmlar dahil olmak üzere bir dizi sistemi kontrol edebilir. Sistemi App Store veya Google Play'den Interra Pro uygulamasını indirerek mobil cihazınızdan kontrol edebilirsiniz. Interra dokunmatik panellerin kurulumu ve yapılandırması için, Interra Configurator yazılımını web sitemizden indirebilirsiniz: www.interratechnology.com.
+
+
+
+
+• Otomasyon Kontrolü: Interra Dokunmatik Panel ile EIO (Ethernet üzerinden kontrol edilen IO Modülü) ve KNX otomasyon sistemlerini kontrol edin.
+
+
+
+
+• Zamanlayıcı Özelliği: Panelin zamanlayıcısını kullanarak günlük, haftalık, aylık veya yıllık işlemleri planlayın.
+
+
+
+
+• Güvenlik Kontrolü: Güvenlik sistemlerini yönetin ve kameraları panel ve mobil uygulamalar aracılığıyla görüntüleyin.
+
+
+
+
+• Mantık İşlemleri: Interra Dokunmatik Panel ile çeşitli mantık işlemleri gerçekleştirin.
+
+
+
+
+• Anlık Bildirimler: Google ve Apple Cloud aracılığıyla mobilde anında bildirimler alın.
+
+
+
+
+• IoT Cihazları: Interra Dokunmatik Panel ile tüm IoT uyumlu cihazları kontrol edin.
+
+
+
+
+• Ses Kontrolü: Hey Interra Sesli Asistan gibi asistanlarla sesli komutları kullanarak evi kontrol edin.
+
+
+
+
+
+
+
+
+
+
+
+
+
+iX10 Training Video Series
+
+
+
+
+
+
+
+Interra Panel & Server Configurator Masaüstü Uygulaması
+Product Downloads
+INTERRA - Developer of Uniqueness
+Teknik Doküman
+Review 
+CE Deklerasyonu
+Review 
+Kullanıcı Kılavuzu
+Review 
+Kullanım Kılavuzu
+Review 
+Dokunmatik Panel Aksesuarları
+Review 
+Cad Çizimi
+Review 
+Revit Dosyası
+Review 
+About Interra
+Hakkımızda
+Vizyonumuz ve Amacımız
+Kalite Politikamız
+Sertifikalar
+Kariyer
+About KNX
+KNX Nedir
+KNX Faydaları
+Eviniz İçin KNX
+Ofisiniz İçin KNX
+Mimarlar İçin KNX
+Quick Links
+Gizlilik Politikası
+Çerez Politikası
+Partnerlerimiz
+Çözümlerimiz
+Haberler
+Mobil Uygulama Gizlilik P.
+Contact Information
+
+Interra R&D Center - Cumhuriyet Mah. Kartal Cad. No:95
+34876 Kartal / Istanbul
+
+info@interratechnology.com
+
++90 216 326 26 40
+
+          
+
+© 2025 Interra Technology. All Rights Reserved.
+Cookie
+
+We use cookies to ensure you get the best experience on our website.
+
+Ok

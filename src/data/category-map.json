@@ -1,0 +1,81 @@
+{
+    "GlobalRules": {
+        "Akıllı Bina Otomasyonu": [
+            "KNX",
+            "Automation",
+            "Smart Home",
+            "HVAC Interface",
+            "Thermostat",
+            "Climate Control",
+            "Actuator",
+            "Aktuatör",
+            "System Component",
+            "Building Control",
+            "Server",
+            "Gateway",
+            "Combo",
+            "Input",
+            "Output",
+            "Dali",
+            "Touch Panel",
+            "Dokunmatik Panel"
+        ],
+        "Anahtar & Priz Grubu": [
+            "Lighting",
+            "Switch",
+            "Socket",
+            "Frame",
+            "Çerçeve",
+            "Plate",
+            "Dimmer",
+            "Priz",
+            "Wiring Devices",
+            "Mekanizma"
+        ],
+        "Güvenlik & İnterkom": [
+            "CCTV",
+            "Intercom",
+            "Security",
+            "Camera",
+            "Door Entry",
+            "Video Phone",
+            "Access Control",
+            "Diafon"
+        ],
+        "Ağ & Altyapı": [
+            "Network",
+            "Wi-Fi",
+            "Access Point",
+            "Switching",
+            "Router",
+            "Data Cabling",
+            "Rack Cabinet",
+            "Patch Panel"
+        ],
+        "Otel Çözümleri": [
+            "GRMS",
+            "Guest Room",
+            "Hotel",
+            "Bedside Panel",
+            "DND/MUR",
+            "Card Holder",
+            "Room Controller"
+        ]
+    },
+    "BrandSpecific": {
+        "Legrand": {
+            "User Interface": "Anahtar & Priz Grubu",
+            "Connection": "Ağ & Altyapı"
+        },
+        "EAE": {
+            "Hotel Solutions": "Otel Çözümleri"
+        },
+        "Interra": {
+            "Touch Panel": "Akıllı Bina Otomasyonu"
+        },
+        "Hager": {
+            "Tebis": "Akıllı Bina Otomasyonu",
+            "Berker": "Anahtar & Priz Grubu"
+        }
+    }
+}

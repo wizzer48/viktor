@@ -13,7 +13,7 @@ const initialState = {
 };
 
 export default function LoginPage() {
-    const [state, formAction, isPending] = useActionState(login, initialState);
+    const [state, formAction] = useActionState(login, initialState);
     const router = useRouter();
 
     useEffect(() => {
@@ -29,7 +29,7 @@ export default function LoginPage() {
                     <div className="w-12 h-12 bg-[var(--viktor-blue)]/10 rounded-full flex items-center justify-center mb-4 text-[var(--viktor-blue)]">
                         <Lock className="w-6 h-6" />
                     </div>
-                    <h1 className="text-2xl font-bold text-white tracking-tight">System Access</h1>
+                    <h1 className="text-2xl font-bold text-foreground tracking-tight">System Access</h1>
                     <p className="text-[var(--viktor-slate)] text-sm mt-2">Viktor Systems Engineering Console</p>
                 </div>
 
@@ -41,7 +41,7 @@ export default function LoginPage() {
                             name="password"
                             required
                             placeholder="••••••••••••"
-                            className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-3 text-white outline-none focus:border-[var(--viktor-blue)] transition-colors font-mono tracking-widest"
+                            className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-3 text-foreground outline-none focus:border-[var(--viktor-blue)] transition-colors font-mono tracking-widest"
                         />
                     </div>
 

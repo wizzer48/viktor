@@ -5,25 +5,112 @@ import path from 'path';
 import crypto from 'crypto';
 import { revalidatePath } from 'next/cache';
 import { ProductSchema } from '@/lib/schemas';
-import { Product } from '@/lib/scraper/types';
+import { Product, Variant } from '@/lib/scraper/types';
 
-const PRODUCTS_FILE = path.join(process.cwd(), 'src', 'data', 'products.json');
+// Use dynamic import/require for SQLite to avoid Edge runtime errors 
+function getDb() {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const Database = require('better-sqlite3');
+    const dbPath = path.join(process.cwd(), 'src', 'data', 'viktor.db');
+    const db = new Database(dbPath);
+    db.pragma('journal_mode = WAL');
+    return db;
+}
 
 // --- DATA ACCESS ---
 
+function mapRowToProduct(row: Record<string, unknown>): Product {
+    let images: string[] = [];
+    try {
+        images = JSON.parse((row.images as string) || '[]');
+        if (!Array.isArray(images)) images = [];
+    } catch { }
+
+    let specs: Record<string, string> = {};
+    try {
+        specs = JSON.parse((row.specs as string) || '{}');
+    } catch { }
+
+    let features: string[] = [];
+    try { features = JSON.parse((row.features as string) || '[]'); } catch { }
+
+    let downloads: { title: string; url: string; }[] = [];
+    try { downloads = JSON.parse((row.downloads as string) || '[]'); } catch { }
+
+    let videos: string[] = [];
+    try { videos = JSON.parse((row.videos as string) || '[]'); } catch { }
+
+    let variants: Variant[] = [];
+    try { variants = JSON.parse((row.variants as string) || '[]'); } catch { }
+
+    return {
+        id: row.id as string,
+        brand: row.brand as Product['brand'],
+        name: row.title as string,
+        category: row.category as string,
+        subCategory: undefined,
+        originalCategory: row.category as string, // Fallback since it wasn't preserved in Phase 2.5
+        description: (row.description as string) || '',
+        imagePath: images.length > 0 ? images[0] : '/placeholder.svg',
+        images: images,
+        datasheetPath: undefined,
+        sourceUrl: '',
+        specs: specs,
+        features,
+        downloads,
+        videos,
+        variants,
+        lastUpdated: new Date().toISOString()
+    };
+}
+
 export async function getProducts(): Promise<Product[]> {
     try {
-        await fs.access(PRODUCTS_FILE);
-        const data = await fs.readFile(PRODUCTS_FILE, 'utf-8');
-        return JSON.parse(data);
-    } catch {
+        const db = getDb();
+        const rows = db.prepare('SELECT * FROM products').all();
+        db.close();
+        return rows.map(mapRowToProduct);
+    } catch (err: unknown) {
+        console.error('getProducts error:', err);
         return [];
     }
 }
 
 export async function getProduct(id: string): Promise<Product | undefined> {
-    const products = await getProducts();
-    return products.find(p => p.id === id);
+    try {
+        const db = getDb();
+        const row = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
+        db.close();
+        if (!row) return undefined;
+        return mapRowToProduct(row);
+    } catch (err: unknown) {
+        console.error('getProduct error:', err);
+        return undefined;
+    }
+}
+
+export async function getDistinctBrands(): Promise<string[]> {
+    try {
+        const db = getDb();
+        const rows = db.prepare('SELECT DISTINCT brand FROM products WHERE brand IS NOT NULL AND brand != ""').all();
+        db.close();
+        return rows.map((r: { brand: string }) => r.brand).sort();
+    } catch (err) {
+        console.error('getDistinctBrands error:', err);
+        return [];
+    }
+}
+
+export async function getDistinctCategories(): Promise<string[]> {
+    try {
+        const db = getDb();
+        const rows = db.prepare('SELECT DISTINCT category FROM products WHERE category IS NOT NULL AND category != ""').all();
+        db.close();
+        return rows.map((r: { category: string }) => r.category).sort();
+    } catch (err) {
+        console.error('getDistinctCategories error:', err);
+        return [];
+    }
 }
 
 // --- HELPERS ---
@@ -43,21 +130,15 @@ function slugify(text: string): string {
         .map(char => trMap[char] || char)
         .join('')
         .toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '') // Remove invalid chars
+        .replace(/[^a-z0-9\s-]/g, '')
         .trim()
-        .replace(/\s+/g, '-') // Replace spaces with -
-        .replace(/-+/g, '-'); // Remove duplicate -
-}
-
-async function writeProducts(products: Product[]) {
-    await fs.writeFile(PRODUCTS_FILE, JSON.stringify(products, null, 2));
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-');
 }
 
 async function saveFile(file: File, folder: 'products' | 'docs', prefix: string): Promise<string> {
     const buffer = Buffer.from(await file.arrayBuffer());
 
-    // Usage: prefix-random.ext (e.g., legrand-combo-actuator-a1b2.jpg)
-    // This keeps files identifiable but unique
     const ext = path.extname(file.name) || (folder === 'products' ? '.jpg' : '.pdf');
     const uniqueSuffix = crypto.randomBytes(4).toString('hex');
     const fileName = `${prefix}-${uniqueSuffix}${ext}`;
@@ -82,7 +163,6 @@ export async function updateProduct(prevState: { success: boolean; message: stri
 
 async function saveProduct(formData: FormData, mode: 'create' | 'update') {
     try {
-        // Validate fields with Zod
         const rawData = {
             id: formData.get('id'),
             name: formData.get('name'),
@@ -90,6 +170,10 @@ async function saveProduct(formData: FormData, mode: 'create' | 'update') {
             category: formData.get('category'),
             description: formData.get('description'),
             specs: formData.get('specs') ? JSON.parse(formData.get('specs') as string) : {},
+            features: formData.get('features') ? JSON.parse(formData.get('features') as string) : [],
+            downloads: formData.get('downloads') ? JSON.parse(formData.get('downloads') as string) : [],
+            videos: formData.get('videos') ? JSON.parse(formData.get('videos') as string) : [],
+            variants: formData.get('variants') ? JSON.parse(formData.get('variants') as string) : [],
         };
 
         const validatedFields = ProductSchema.safeParse(rawData);
@@ -99,104 +183,81 @@ async function saveProduct(formData: FormData, mode: 'create' | 'update') {
             return { success: false, message: 'Invalid data: ' + validatedFields.error.issues.map(i => i.message).join(', ') };
         }
 
-        const { name, brand, category, description, specs } = validatedFields.data as {
+        const { name, brand, category, description, specs, features, downloads, videos, variants } = validatedFields.data as {
             name: string;
             brand: string;
             category: string;
             description: string;
-            specs: Record<string, string>
+            specs: Record<string, string>;
+            features: string[];
+            downloads: { title: string; url: string; }[];
+            videos: string[];
+            variants: Variant[];
         };
         let id = rawData.id as string;
 
         const imageFiles = formData.getAll('images') as File[];
-        const datasheetFile = formData.get('datasheet') as File;
+        const filePrefix = slugify(`${brand}-${name}`).substring(0, 50);
 
-        const products = await getProducts();
-        let product: Product;
+        const db = getDb();
 
-        // Generate Semantic Slug for ID if Creating
-        if (mode === 'create') {
+        let existingProduct: Product | undefined;
+        if (mode === 'update') {
+            const row = db.prepare('SELECT * FROM products WHERE id = ?').get(id);
+            if (!row) return { success: false, message: 'Product not found' };
+            existingProduct = mapRowToProduct(row);
+        } else {
             const baseSlug = slugify(`${brand}-${name}`);
             id = baseSlug;
             let counter = 1;
-            while (products.some(p => p.id === id)) {
+            while (db.prepare('SELECT id FROM products WHERE id = ?').get(id)) {
                 id = `${baseSlug}-${counter}`;
                 counter++;
             }
         }
 
-        const filePrefix = slugify(`${brand}-${name}`).substring(0, 50); // Limit length
-
-        if (mode === 'update') {
-            const existing = products.find(p => p.id === id);
-            if (!existing) return { success: false, message: 'Product not found' };
-            product = { ...existing };
-        } else {
-            product = {
-                id,
-                brand: brand as Product['brand'],
-                name,
-                category,
-                originalCategory: 'Manual Entry',
-                description: '',
-                imagePath: '/placeholder.svg',
-                images: [],
-                sourceUrl: '',
-                specs: {},
-                lastUpdated: new Date().toISOString()
-            };
-        }
-
-        product.name = name;
-        product.brand = brand as Product['brand'];
-        product.category = category;
-        product.description = description || '';
-        product.lastUpdated = new Date().toISOString();
-
-        product.specs = (specs as Record<string, string>) || {};
-
-        // Images
+        // Handle Image Uploads
         const newImagePaths: string[] = [];
         for (const file of imageFiles) {
             if (file.size > 0) {
-                const path = await saveFile(file, 'products', filePrefix);
-                newImagePaths.push(path);
+                const imgPath = await saveFile(file, 'products', filePrefix);
+                newImagePaths.push(imgPath);
             }
         }
 
+        let finalImages: string[] = [];
         if (mode === 'create') {
-            if (newImagePaths.length > 0) {
-                product.images = newImagePaths;
-                product.imagePath = newImagePaths[0];
-            }
-        } else {
-            if (newImagePaths.length > 0) {
-                product.images = [...(product.images || []), ...newImagePaths];
-                if (!product.imagePath || product.imagePath === '/placeholder.svg') {
-                    product.imagePath = newImagePaths[0];
-                }
-            }
+            finalImages = newImagePaths;
+        } else if (existingProduct) {
+            finalImages = [...(existingProduct.images || []), ...newImagePaths];
         }
 
-        // Datasheet
-        if (datasheetFile && datasheetFile.size > 0) {
-            product.datasheetPath = await saveFile(datasheetFile, 'docs', filePrefix);
-        }
+        // Insert / Update in SQLite
+        const insertStmt = db.prepare(`
+            INSERT OR REPLACE INTO products (id, title, description, images, specs, features, downloads, videos, variants, category, brand, slug)
+            VALUES (@id, @title, @description, @images, @specs, @features, @downloads, @videos, @variants, @category, @brand, @slug)
+        `);
 
-        // Commmit
-        if (mode === 'create') {
-            products.push(product);
-        } else {
-            const index = products.findIndex(p => p.id === id);
-            products[index] = product;
-        }
-
-        await writeProducts(products);
+        insertStmt.run({
+            id: id,
+            title: name,
+            description: description || '',
+            images: JSON.stringify(finalImages),
+            specs: JSON.stringify(specs || {}),
+            features: JSON.stringify(features || []),
+            downloads: JSON.stringify(downloads || []),
+            videos: JSON.stringify(videos || []),
+            variants: JSON.stringify(variants || []),
+            category: category,
+            brand: brand,
+            slug: id
+        });
+        db.close();
 
         revalidatePath('/urunler');
-        revalidatePath(`/urunler/${product.id}`);
+        revalidatePath(`/urunler/${id}`);
         revalidatePath('/admin');
-        revalidatePath(`/admin/duzenle/${product.id}`);
+        revalidatePath(`/admin/duzenle/${id}`);
 
         return { success: true, message: `Product ${mode === 'create' ? 'added' : 'updated'} successfully!` };
 
@@ -208,14 +269,14 @@ async function saveProduct(formData: FormData, mode: 'create' | 'update') {
 
 export async function deleteProduct(id: string) {
     try {
-        const products = await getProducts();
-        const filtered = products.filter(p => p.id !== id);
+        const db = getDb();
+        const changes = db.prepare('DELETE FROM products WHERE id = ?').run(id).changes;
+        db.close();
 
-        if (products.length === filtered.length) {
+        if (changes === 0) {
             return { success: false, message: 'Product not found' };
         }
 
-        await writeProducts(filtered);
         revalidatePath('/urunler');
         revalidatePath('/admin');
 
@@ -224,3 +285,30 @@ export async function deleteProduct(id: string) {
         return { success: false, message: (error as Error).message };
     }
 }
+
+export async function updateBulkProducts(updates: { id: string, brand: string, category: string }[]) {
+    try {
+        const db = getDb();
+
+        // Use a transaction for bulk updates
+        const updateStmt = db.prepare('UPDATE products SET brand = @brand, category = @category WHERE id = @id');
+
+        const transaction = db.transaction((items: { id: string, brand: string, category: string }[]) => {
+            for (const item of items) {
+                updateStmt.run(item);
+            }
+        });
+
+        transaction(updates);
+        db.close();
+
+        revalidatePath('/urunler');
+        revalidatePath('/admin');
+
+        return { success: true, message: `${updates.length} ürün başarıyla güncellendi!` };
+    } catch (error: unknown) {
+        console.error('Bulk update error:', error);
+        return { success: false, message: (error as Error).message };
+    }
+}
+

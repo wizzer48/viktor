@@ -3,7 +3,7 @@
 import { ScraperEngine } from '@/lib/scraper/engine';
 import { Brand, ScrapeResult } from '@/lib/scraper/types';
 
-export async function scrapeProductAction(url: string, brand: Brand, cookies?: any[]): Promise<ScrapeResult> {
+export async function scrapeProductAction(url: string, brand: Brand, cookies?: { name: string; value: string; domain: string }[]): Promise<ScrapeResult> {
     if (!url) {
         return { success: false, message: 'URL is required' };
     }

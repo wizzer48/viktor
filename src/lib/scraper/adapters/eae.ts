@@ -3,58 +3,79 @@ import { BaseAdapter } from './base';
 export class EAEAdapter extends BaseAdapter {
     protected extractTitle(): string {
         if (!this.$) return '';
-        return this.$('.product-name').text().trim() ||
-            this.$('h1').first().text().trim() ||
-            this.$('title').text().trim();
+        const exactTitle = this.$('body > div').eq(8)
+            .children('div').children('div')
+            .children('div').eq(2)
+            .find('h3').text().trim();
+        return exactTitle || this.$('h3').first().text().trim();
     }
 
     protected extractDescription(): string {
         if (!this.$) return '';
-        return this.$('#tab-description').text().trim() ||
-            this.$('.product-short-description').text().trim() ||
-            this.$('meta[name="description"]').attr('content') || '';
+        let descriptionHtml = '';
+        const parentContainer = this.$('body > div').eq(8).children('div').children('div');
+        const descriptionBlocks = parentContainer.children('div').slice(5, 13);
+
+        descriptionBlocks.each((_, el) => {
+            const block = this.$!(el).clone();
+            block.find('img').remove();
+            const htmlContent = block.html();
+            if (htmlContent) {
+                descriptionHtml += `<div>${htmlContent.trim()}</div>`;
+            }
+        });
+        return descriptionHtml || '<p>Ürün açıklaması bulunamadı.</p>';
+    }
+
+    public extractImages(): string[] {
+        if (!this.$) return [];
+        const images: string[] = [];
+        const mainImgAnchor = this.$('body > div').eq(8)
+            .children('div').children('div')
+            .children('div').eq(1)
+            .find('div').eq(0).find('div').eq(2).find('div > a');
+
+        const mainImgHref = mainImgAnchor.attr('href');
+        const mainImgSrc = mainImgAnchor.find('img').attr('data-src') || mainImgAnchor.find('img').attr('src');
+        const mainImage = mainImgHref || mainImgSrc;
+
+        if (mainImage && !mainImage.includes('base64')) {
+            images.push(mainImage.startsWith('http') ? mainImage : `https://eaetechnology.com${mainImage}`);
+        }
+
+        const parentContainer = this.$('body > div').eq(8).children('div').children('div');
+        const descriptionBlocks = parentContainer.children('div').slice(5, 13);
+
+        descriptionBlocks.find('img').each((_, el) => {
+            const src = this.$!(el).attr('data-src') || this.$!(el).attr('src');
+            if (src && !src.includes('base64')) {
+                images.push(src.startsWith('http') ? src : `https://eaetechnology.com${src}`);
+            }
+        });
+        return [...new Set(images)];
     }
 
     protected extractImage(): string {
         if (!this.$) return '';
-        return this.$('.product-image-gallery img').first().attr('src') ||
-            this.$('.main-image img').attr('src') ||
-            this.$('meta[property="og:image"]').attr('content') || '';
+        const images = this.extractImages();
+        return images.length > 0 ? images[0] : '';
     }
 
     protected extractPdf(): string {
-        if (!this.$) return '';
-        let pdf = '';
-        this.$('#tab-documents a, .downloads-section a').each((_, el) => {
-            const href = this.$!(el).attr('href');
-            if (href && href.endsWith('.pdf')) {
-                pdf = href;
-                return false;
-            }
-        });
-        return pdf;
-    }
-
-    protected extractOriginalCategory(): string {
-        if (!this.$) return 'General';
-        const breadcrumb = this.$('.breadcrumbs').text().trim();
-        if (breadcrumb) {
-            return breadcrumb.split('/').pop()?.trim() || breadcrumb;
-        }
-        return 'EAE Product';
+        return '';
     }
 
     protected extractSpecs(): Record<string, string> {
-        const specs: Record<string, string> = {};
-        if (!this.$) return specs;
+        return {};
+    }
 
-        this.$('#tab-specification table tr').each((_, el) => {
-            const key = this.$!(el).find('td').first().text().trim();
-            const val = this.$!(el).find('td').last().text().trim();
-            if (key && val && key !== val) {
-                specs[key] = val;
-            }
-        });
-        return specs;
+    protected extractOriginalCategory(): string {
+        return 'KNX Dokunmatik Panel';
+    }
+
+    async scrapeRaw() {
+        const raw = await super.scrapeRaw();
+        raw.rawImages = this.extractImages();
+        return raw;
     }
 }

@@ -26,8 +26,12 @@ You possess a suite of robust tools. You MUST use them in the following **Chain 
 ### PHASE 1: INTELLIGENCE & CONTEXT (The Brain)
 **Tools:** `Sequential Thinking`, `Memory`, `Qdrant`, `Context7`
 1.  **Sequential Thinking:** CRITICAL. Before writing a single line of code, you MUST use this to plan your architecture, component hierarchy, and logic flow.
-2.  **Memory & Qdrant:** Check your vector knowledge base strictly for past user preferences, project decisions, and technical constraints before suggesting ideas.
-3.  **Context7:** Use this to instantly fetch, search, and understand the existing codebase context if the current conversation history is insufficient. Do not guess the code; read it.
+2.  **Memory & Qdrant:** Check your vector knowledge base strictly for past project decisions, and technical constraints before suggesting ideas. Record important architectural decisions to `qdrant` (`viktor-memory`).
+3.  **Context7:** Use this to instantly fetch, search, and understand the existing codebase context.
+
+### PHASE 1.5: DATA & TOKEN OPTIMIZATION (The Diet)
+**Tools:** `TOON`
+1.  **TOON (Token-Oriented Object Notation):** Sistemdeki devasa JSON veritabanlarını (`products.json`, `messages.json` vb.) standart formatta okumak KESİNLİKLE YASAKTIR. Bu dosyalar okunacağı zaman token israfını önlemek için DAİMA `toon` MCP'si kullanılarak sıkıştırılmış formatta analiz edilmelidir.
 
 ### PHASE 2: CONSTRUCTION (The Hands)
 **Tools:** `Filesystem`, `Stitch`
@@ -35,26 +39,28 @@ You possess a suite of robust tools. You MUST use them in the following **Chain 
     - **NEVER** ask the user to manually create files. YOU create them.
     - **NEVER** ask the user to paste code. YOU write it directly to the file.
     - **Database Management:** Use Filesystem to safely read/write `src/data/products.json` and `category-map.json` for product inventory.
-2.  **Stitch:** Use for complex code refactoring, generating new components, and patching existing logic.
-    - *Constraint:* Batch your requests. Do not make 10 small requests; make 1 master request to patch a file.
+2.  **Stitch:** Use for complex code refactoring, generating new components, and patching existing logic. Batch your requests.
+
+### PHASE 2.5: DATA MANAGEMENT & FETCHING
+**Tools:** `sqlite`, `fetch`
+1. **SQLite:** All product and category data must be managed via `src/data/viktor.db`. Avoid reading massive JSON files. Use targeted SQL queries (`SELECT`, `INSERT`) to minimize token usage.
+2. **Fetch:** Use the `fetch` MCP for reading documentation or static external websites as Markdown. Switch to `puppeteer` only if JavaScript rendering or complex DOM analysis is required.
 
 ### PHASE 3: QUALITY ASSURANCE (The Eyes)
 **Tool:** `Puppeteer`
-1.  **Mandatory Audit:** After creating or editing a UI component/page, you MUST use `Puppeteer` to:
-    - Visit the local URL (e.g., `http://localhost:3000/admin`).
-    - Take a screenshot to verify styling.
-    - Check the console for hydration errors or broken image paths.
-    - **Report:** If the screenshot shows a 404, broken layout, or `public/` path error, you must fix it IMMEDIATELY using `Stitch` before reporting "Success".
+1.  **Mandatory Audit:** After creating or editing a UI component/page, you MUST use `Puppeteer` to visit the local URL, verify styling, and check for errors.
 
 ### PHASE 4: VERSION CONTROL (The Vault)
 **Tool:** `GitHub`
-1.  **Commit:** After every successfully tested feature (e.g., "Completed Admin Dashboard UI"), perform a git commit and push with a semantic message to secure the changes.
+1.  **Commit:** After every successfully tested feature, perform a git commit and push with a semantic message to secure the changes.
+
+> **⚠️ SİSTEM NOTU (Windows 11 Uyumluluğu):** Arka planda çalışan tüm Node.js tabanlı araçlar (npx tabanlı çağrılar) Windows ortamında hatasız çalışması için `.cmd` uzantısıyla yapılandırılmıştır. Ajan, dosya sistemi ve terminal işlemlerinde Windows dosya yollarını (Ters eğik çizgi `\` ve PowerShell komut yapılarını) baz alacaktır.
 
 ## 4. CONTEXT DIET & SPRINT MANAGEMENT (EFFICIENCY PROTOCOL)
 **CRITICAL RULE:** We operate under strict token and compute limits. Maximum efficiency is mandatory.
 1. **Master Prompts (Batching):** Expect and encourage "Sprint" updates (grouped tasks) rather than individual micro-requests. Execute tasks in a single, comprehensive pass.
-2. **Context Diet:** NEVER request, read, or ingest the entire conversation history or full codebase dumps unless absolutely necessary. Pinpoint the exact files needed using `Filesystem` or `Context7` and only read what you must patch.
-3. **Zero-Waste Iteration:** Finalize UI/UX decisions using `Sequential Thinking` before writing any code. Avoid trial-and-error coding loops to preserve context window and compute quotas.
+2. **Context Diet:** NEVER request, read, or ingest the entire conversation history or full codebase dumps unless absolutely necessary.
+3. **Zero-Waste Iteration:** Finalize UI/UX decisions using `Sequential Thinking` before writing any code.
 
 ## 5. VISIBILITY & AUDIT LOG (STRICT REQUIREMENT)
 You must provide real-time feedback using specific emojis to indicate which "Organ" of the system is working.
@@ -72,7 +78,7 @@ You must provide real-time feedback using specific emojis to indicate which "Org
 - **Font:** JetBrains Mono (Code/Headers), Inter (Body).
 
 **Coding Rules:**
-- **Path Handling:** NEVER leave `/public` in database strings. (e.g., Save as `/uploads/img.jpg`, NOT `/public/uploads/img.jpg`).
+- **Path Handling:** NEVER leave `/public` in database strings.
 - **Error Handling:** Every Server Action must return `{ success: boolean, message: string }`.
 - **Type Safety:** No `any`. Define interfaces in `src/types`.
 

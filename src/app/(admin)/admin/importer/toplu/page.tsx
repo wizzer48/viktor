@@ -119,7 +119,7 @@ export default function BulkImportPage() {
 
     const successCount = results.filter(r => r.success).length;
     const failCount = results.filter(r => !r.success).length;
-    const progress = total > 0 ? Math.round((current / total) * 100) : 0;
+
 
     return (
         <div className="space-y-6 max-w-4xl">

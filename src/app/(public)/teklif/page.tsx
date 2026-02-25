@@ -44,7 +44,7 @@ export default function QuotePage() {
             if (result.success) {
                 clearQuote();
             }
-        } catch (error) {
+        } catch {
             setSubmitResult({ success: false, message: 'Bir hata oluştu.' });
         } finally {
             setIsSubmitting(false);

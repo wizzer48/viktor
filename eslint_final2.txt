@@ -1,0 +1,6 @@
+﻿
+C:\Bond\src\app\actions\quote.ts
+  73:18  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+Ô£û 1 problem (0 errors, 1 warning)
+

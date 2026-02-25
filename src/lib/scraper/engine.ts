@@ -2,15 +2,12 @@ import { Brand, Product, ScrapeResult } from './types';
 import { BaseAdapter } from './adapters/base';
 import { InterraAdapter } from './adapters/interra';
 import { EAEAdapter } from './adapters/eae';
+import { SeristaAdapter } from './adapters/serista';
 import { GenericFallbackAdapter } from './adapters/generic';
 import { downloadAsset } from './downloader';
 import { normalizeCategory } from './mapper';
-import fs from 'fs/promises';
 import path from 'path';
 import crypto from 'crypto';
-
-const DATA_DIR = path.join(process.cwd(), 'src/data');
-const DATA_FILE = path.join(DATA_DIR, 'products.json');
 
 /** Generate a URL-friendly slug from a product name (Turkish-aware) */
 function slugify(text: string): string {
@@ -31,23 +28,144 @@ function slugify(text: string): string {
 }
 
 export class ScraperEngine {
-    static async scrape(url: string, brand: Brand, headers?: Record<string, string>, cookies?: any[], categoryOverride?: string, subCategoryOverride?: string): Promise<ScrapeResult> {
+    static async scrapeHtml(html: string, sourceUrl: string, brand: Brand, categoryOverride?: string, subCategoryOverride?: string): Promise<ScrapeResult> {
+        console.log(`\n🚀 BAŞLATILIYOR (HTML): ${brand}`);
+        const result: ScrapeResult = { success: false, message: '' };
+
+        try {
+            // Sadece Core destekli şimdilik HTML injection
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            const { CoreAdapter } = require('./adapters/core');
+            const adapter = new CoreAdapter(html, sourceUrl);
+
+            const rawData = await adapter.scrapeRaw();
+            console.log(`🔍 HAM VERİ BULUNDU: ${rawData.title}`);
+
+            if (!rawData.title || rawData.title === 'Bilinmeyen Ürün') {
+                throw new Error("Geçerli bir ürün başlığı bulunamadı, HTML bloğu hatalı.");
+            }
+
+            // Asset Management (Download)
+            let finalImageUrl = rawData.rawImageUrl;
+            if (finalImageUrl && !finalImageUrl.startsWith('http')) {
+                try {
+                    const baseUrl = new URL(sourceUrl).origin;
+                    finalImageUrl = new URL(finalImageUrl, baseUrl).toString();
+                } catch { }
+            }
+
+            let imagePath = '/placeholder.svg';
+            if (finalImageUrl) {
+                const downloaded = await downloadAsset(finalImageUrl, 'image');
+                if (downloaded) imagePath = downloaded;
+            }
+
+            const galleryPaths: string[] = [];
+            if (rawData.rawImages && rawData.rawImages.length > 0) {
+                for (const imgUrl of rawData.rawImages) {
+                    let validUrl = imgUrl;
+                    if (validUrl && !validUrl.startsWith('http')) {
+                        try {
+                            const baseUrl = new URL(sourceUrl).origin;
+                            validUrl = new URL(validUrl, baseUrl).toString();
+                        } catch {
+                            continue;
+                        }
+                    }
+                    if (validUrl) {
+                        const downloaded = await downloadAsset(validUrl, 'image');
+                        if (downloaded) galleryPaths.push(downloaded);
+                    }
+                }
+            }
+
+            const normalizedCategory = categoryOverride || normalizeCategory(brand, rawData.originalCategory);
+            const slug = slugify(rawData.title);
+            const hashSuffix = crypto.createHash('md5').update(sourceUrl + rawData.title).digest('hex').substring(0, 4);
+            const productId = `${slug}-${hashSuffix}`;
+
+            const cleanedDescription = (rawData.description || '')
+                .replace(/<img[^>]*>/gi, '')
+                .replace(/<a[^>]*>\s*<\/a>/gi, '')
+                .trim();
+
+            // Downloads Array (PDFs)
+            const finalDownloads: { title: string, url: string }[] = [];
+            if (rawData.downloads && rawData.downloads.length > 0) {
+                console.log(`⬇️ Dökümanlar indiriliyor (${rawData.downloads.length} adet)...`);
+                for (const doc of rawData.downloads) {
+                    let validDocUrl = doc.url;
+                    if (validDocUrl && !validDocUrl.startsWith('http')) {
+                        try {
+                            const baseUrl = new URL(sourceUrl).origin;
+                            validDocUrl = new URL(validDocUrl, baseUrl).toString();
+                        } catch {
+                            continue;
+                        }
+                    }
+                    if (validDocUrl) {
+                        const downloadedDoc = await downloadAsset(validDocUrl, 'pdf');
+                        if (downloadedDoc) {
+                            finalDownloads.push({ title: doc.title, url: downloadedDoc });
+                        }
+                    }
+                }
+            }
+
+            const product: Product = {
+                id: productId,
+                brand,
+                name: rawData.title,
+                category: normalizedCategory,
+                subCategory: subCategoryOverride,
+                originalCategory: rawData.originalCategory,
+                description: cleanedDescription,
+                imagePath: imagePath,
+                images: galleryPaths,
+                sourceUrl: sourceUrl,
+                specs: rawData.specs || {},
+                features: rawData.features || [],
+                downloads: finalDownloads,
+                videos: rawData.videos || [],
+                lastUpdated: new Date().toISOString(),
+            };
+
+            await this.saveProduct(product);
+            console.log(`💾 HTML'DEN KAYDEDİLDİ: ${product.name}`);
+
+            result.success = true;
+            result.message = 'Başarıyla çekildi';
+            result.data = product;
+
+        } catch (error) {
+            console.error('❌ HTML SCRAPE HATASI:', error);
+            result.message = error instanceof Error ? error.message : 'Bilinmeyen hata';
+        }
+
+        return result;
+    }
+
+    static async scrape(url: string, brand: Brand, headers?: Record<string, string>, cookies?: { name: string; value: string; domain: string }[], categoryOverride?: string, subCategoryOverride?: string): Promise<ScrapeResult> {
         console.log(`\n🚀 BAŞLATILIYOR: ${brand} - ${url}`);
         const result: ScrapeResult = { success: false, message: '' };
 
         try {
-            // 1. Select Adapter
             let adapter: BaseAdapter;
             const options = { url, brand, headers, cookies };
-            switch (brand) {
-                case 'Interra':
-                    adapter = new InterraAdapter(options);
-                    break;
-                case 'EAE':
-                    adapter = new EAEAdapter(options);
-                    break;
-                default:
-                    adapter = new GenericFallbackAdapter(options);
+
+            if (url.includes('serista.com.tr')) {
+                adapter = new SeristaAdapter(options);
+            } else {
+                switch (brand) {
+                    case 'Interra':
+                        adapter = new InterraAdapter(options);
+                        break;
+                    case 'EAE':
+                        adapter = new EAEAdapter(options);
+                        break;
+                    default:
+                        adapter = new GenericFallbackAdapter(options);
+                }
             }
 
             // 2. Fetch & Extract Raw Data
@@ -135,6 +253,29 @@ export class ScraperEngine {
                 .replace(/<a[^>]*>\s*<\/a>/gi, '') // Remove empty anchors
                 .trim();
 
+            // Downloads Array (PDFs)
+            const finalDownloads: { title: string, url: string }[] = [];
+            if (rawData.downloads && rawData.downloads.length > 0) {
+                console.log(`⬇️ Dökümanlar indiriliyor (${rawData.downloads.length} adet)...`);
+                for (const doc of rawData.downloads) {
+                    let validDocUrl = doc.url;
+                    if (validDocUrl && !validDocUrl.startsWith('http')) {
+                        try {
+                            const baseUrl = new URL(url).origin;
+                            validDocUrl = new URL(validDocUrl, baseUrl).toString();
+                        } catch {
+                            continue;
+                        }
+                    }
+                    if (validDocUrl) {
+                        const downloadedDoc = await downloadAsset(validDocUrl, 'pdf');
+                        if (downloadedDoc) {
+                            finalDownloads.push({ title: doc.title, url: downloadedDoc });
+                        }
+                    }
+                }
+            }
+
             const product: Product = {
                 id: productId,
                 brand,
@@ -148,6 +289,9 @@ export class ScraperEngine {
                 datasheetPath: datasheetPath,
                 sourceUrl: url,
                 specs: rawData.specs || {},
+                features: rawData.features || [],
+                downloads: finalDownloads,
+                videos: rawData.videos || [],
                 lastUpdated: new Date().toISOString(),
             };
 
@@ -168,32 +312,45 @@ export class ScraperEngine {
 
     private static async saveProduct(product: Product) {
         try {
-            // Klasör var mı kontrol et, yoksa oluştur
-            await fs.mkdir(DATA_DIR, { recursive: true });
+            const dbPath = path.join(process.cwd(), 'src', 'data', 'viktor.db');
 
-            try {
-                await fs.access(DATA_FILE);
-            } catch {
-                await fs.writeFile(DATA_FILE, '[]', 'utf-8');
-            }
+            // Note: We use dynamic import or require to avoid breaking edge runtimes
+            // but since this is called in Node.js action, require is fine.
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            const Database = require('better-sqlite3');
+            const db = new Database(dbPath);
+            db.pragma('journal_mode = WAL');
 
-            const fileContent = await fs.readFile(DATA_FILE, 'utf-8');
-            let products: Product[] = [];
-            try {
-                products = JSON.parse(fileContent);
-            } catch {
-                products = [];
-            }
+            const insertStmt = db.prepare(`
+                INSERT OR REPLACE INTO products (id, title, description, images, specs, features, downloads, videos, variants, category, brand, slug)
+                VALUES (@id, @title, @description, @images, @specs, @features, @downloads, @videos, @variants, @category, @brand, @slug)
+            `);
 
-            const existingIndex = products.findIndex(p => p.sourceUrl === product.sourceUrl);
-            if (existingIndex > -1) {
-                const id = products[existingIndex].id;
-                products[existingIndex] = { ...products[existingIndex], ...product, id, lastUpdated: new Date().toISOString() };
-            } else {
-                products.push(product);
-            }
+            // Use the deterministic ID created in scrape()
+            const imagesStr = JSON.stringify(product.images || []);
+            const specsStr = JSON.stringify(product.specs || {});
+            const slugStr = product.id; // Original JSON used id for slug sometimes, but we use product.id as ID.
 
-            await fs.writeFile(DATA_FILE, JSON.stringify(products, null, 2), 'utf-8');
+            const result = insertStmt.run({
+                id: product.id,
+                title: product.name,
+                description: product.description,
+                images: imagesStr,
+                specs: specsStr,
+                features: JSON.stringify(product.features || []),
+                downloads: JSON.stringify(product.downloads || []),
+                videos: JSON.stringify(product.videos || []),
+                variants: JSON.stringify(product.variants || []),
+                category: product.category,
+                brand: product.brand,
+                slug: slugStr
+            });
+            console.log(`[DEBUG] Insert Result Changes: ${result.changes}`);
+
+            const check = db.prepare('SELECT count(*) as c FROM products WHERE brand = ?').get('Core');
+            console.log(`[DEBUG] Verify Core count in this connection: ${check.c}`);
+
+            db.close();
         } catch (err) {
             console.error('Veritabanı kayıt hatası:', err);
             throw new Error('Database save failed');

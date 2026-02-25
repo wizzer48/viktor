@@ -1,4 +1,11 @@
-export type Brand = 'Legrand' | 'Interra' | 'EAE' | 'Core' | 'Hager' | 'Astrum' | 'Bticino' | string;
+export type Brand = 'Legrand' | 'Interra' | 'EAE' | 'Serista' | 'Core' | 'Hager' | 'Astrum' | 'Bticino' | string;
+
+export interface Variant {
+    group?: string;
+    name: string;
+    hex?: string;
+    image?: string;
+}
 
 export interface RawProductData {
     title: string;
@@ -9,6 +16,10 @@ export interface RawProductData {
     rawPdfUrl: string;
     sourceUrl: string;
     specs: Record<string, string>;
+    features?: string[];
+    downloads?: { title: string; url: string; }[];
+    videos?: string[];
+    variants?: Variant[];
 }
 
 export interface Product {
@@ -28,6 +39,10 @@ export interface Product {
     sourceUrl: string;
     price?: string;
     specs?: Record<string, string>; // Key-value pairs for technical specs
+    features?: string[]; // Rich feature bullet points
+    downloads?: { title: string; url: string; }[]; // PDF links
+    videos?: string[]; // Video embeds
+    variants?: Variant[]; // Color and Material variants
     lastUpdated: string; // ISO Date String
 }
 
@@ -35,7 +50,7 @@ export interface ScraperOptions {
     url: string;
     brand: Brand;
     headers?: Record<string, string>;
-    cookies?: any[]; // For bypassing auth/bot detection
+    cookies?: { name: string; value: string; domain: string }[]; // For bypassing auth/bot detection
 }
 
 export interface ScrapeResult {

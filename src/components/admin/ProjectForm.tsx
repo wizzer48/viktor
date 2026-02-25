@@ -45,27 +45,27 @@ export function ProjectForm({ mode, initialData }: ProjectFormProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="col-span-1 md:col-span-2 space-y-2">
                     <label className="text-xs font-mono uppercase text-[var(--viktor-slate)]">Project Name</label>
-                    <input name="name" defaultValue={initialData?.name} required className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-white outline-none focus:border-[var(--viktor-blue)]" />
+                    <input name="name" defaultValue={initialData?.name} required className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-foreground outline-none focus:border-[var(--viktor-blue)]" />
                 </div>
 
                 <div className="space-y-2">
                     <label className="text-xs font-mono uppercase text-[var(--viktor-slate)]">Location</label>
-                    <input name="location" defaultValue={initialData?.location} required className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-white outline-none focus:border-[var(--viktor-blue)]" />
+                    <input name="location" defaultValue={initialData?.location} required className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-foreground outline-none focus:border-[var(--viktor-blue)]" />
                 </div>
 
                 <div className="space-y-2">
                     <label className="text-xs font-mono uppercase text-[var(--viktor-slate)]">Year</label>
-                    <input name="year" defaultValue={initialData?.year} required className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-white outline-none focus:border-[var(--viktor-blue)]" />
+                    <input name="year" defaultValue={initialData?.year} required className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-foreground outline-none focus:border-[var(--viktor-blue)]" />
                 </div>
 
                 <div className="col-span-1 md:col-span-2 space-y-2">
                     <label className="text-xs font-mono uppercase text-[var(--viktor-slate)]">Description</label>
-                    <textarea name="description" defaultValue={initialData?.description} rows={3} className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-white outline-none focus:border-[var(--viktor-blue)]" />
+                    <textarea name="description" defaultValue={initialData?.description} rows={3} className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-foreground outline-none focus:border-[var(--viktor-blue)]" />
                 </div>
 
                 <div className="col-span-1 md:col-span-2 space-y-2">
                     <label className="text-xs font-mono uppercase text-[var(--viktor-slate)]">Tags (comma separated)</label>
-                    <input name="tags" defaultValue={initialData?.tags?.join(', ')} placeholder="KNX, Lighting, Hotel" className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-white outline-none focus:border-[var(--viktor-blue)]" />
+                    <input name="tags" defaultValue={initialData?.tags?.join(', ')} placeholder="KNX, Lighting, Hotel" className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-foreground outline-none focus:border-[var(--viktor-blue)]" />
                 </div>
             </div>
 

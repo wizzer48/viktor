@@ -7,7 +7,7 @@ import { Brand } from '@/lib/scraper/types';
 /**
  * Step 1: Quick call — detect how many pages exist and collect URLs from page 1 only
  */
-export async function detectCategoryPages(categoryUrl: string, cookies?: any[]): Promise<{
+export async function detectCategoryPages(categoryUrl: string, cookies?: { name: string; value: string; domain: string }[]): Promise<{
     success: boolean;
     totalPages: number;
     firstPageUrls: string[];
@@ -63,7 +63,7 @@ export async function detectCategoryPages(categoryUrl: string, cookies?: any[]):
 /**
  * Step 2: Collect URLs from a SINGLE page (called repeatedly from client)
  */
-export async function collectPageUrls(categoryUrl: string, pageNum: number, cookies?: any[]): Promise<{
+export async function collectPageUrls(categoryUrl: string, pageNum: number, cookies?: { name: string; value: string; domain: string }[]): Promise<{
     success: boolean;
     urls: string[];
     message: string;
@@ -142,7 +142,7 @@ async function extractProductLinks(page: Awaited<ReturnType<typeof createPage>>,
 export async function scrapeSingleProduct(
     url: string,
     brand: Brand,
-    cookies?: any[],
+    cookies?: { name: string; value: string; domain: string }[],
     categoryOverride?: string,
     subCategoryOverride?: string
 ): Promise<{ success: boolean; name: string; message: string }> {

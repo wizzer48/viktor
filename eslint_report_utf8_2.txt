@@ -1,0 +1,38 @@
+﻿
+C:\Bond\src\app\actions\product.ts
+  12:22  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+C:\Bond\src\app\actions\quote.ts
+   42:14  warning  'e' is defined but never used      @typescript-eslint/no-unused-vars
+   73:18  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  100:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Bond\src\app\api\backfill\route.ts
+  20:66  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Bond\src\components\ui\input.tsx
+  5:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+C:\Bond\src\components\ui\textarea.tsx
+  5:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+C:\Bond\src\context\QuoteContext.tsx
+  33:17  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/exhaustive-deps')
+
+C:\Bond\src\lib\scraper\adapters\interra.ts
+  47:22  warning  'e' is defined but never used                 @typescript-eslint/no-unused-vars
+  60:34  warning  'err' is defined but never used               @typescript-eslint/no-unused-vars
+  71:23  warning  'getHtml' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Bond\src\lib\scraper\backfill.ts
+  36:18  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Bond\src\lib\scraper\engine.ts
+    9:8   warning  'fs' is defined but never used                  @typescript-eslint/no-unused-vars
+   14:7   warning  'DATA_FILE' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   41:37  error    A `require()` style import is forbidden         @typescript-eslint/no-require-imports
+  322:30  error    A `require()` style import is forbidden         @typescript-eslint/no-require-imports
+
+Ô£û 16 problems (6 errors, 10 warnings)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
+

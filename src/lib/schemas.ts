@@ -7,6 +7,15 @@ export const ProductSchema = z.object({
     category: z.string().min(1, "Category is required"),
     description: z.string().optional(),
     specs: z.record(z.string(), z.string()).optional(),
+    features: z.array(z.string()).optional(),
+    downloads: z.array(z.object({ title: z.string(), url: z.string() })).optional(),
+    videos: z.array(z.string()).optional(),
+    variants: z.array(z.object({
+        group: z.string().optional(),
+        name: z.string(),
+        hex: z.string().optional(),
+        image: z.string().optional()
+    })).optional(),
     // Files are handled separately in FormData but we can validate other fields here
 });
 

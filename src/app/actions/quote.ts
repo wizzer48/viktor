@@ -15,7 +15,7 @@ const QuoteSchema = z.object({
     items: z.string() // JSON string of items
 });
 
-export async function submitQuote(prevState: any, formData: FormData) {
+export async function submitQuote(prevState: unknown, formData: FormData) {
     // 1. Validate Form Data
     const validatedFields = QuoteSchema.safeParse({
         name: formData.get('name'),
@@ -39,8 +39,8 @@ export async function submitQuote(prevState: any, formData: FormData) {
     let quoteItems = [];
     try {
         quoteItems = JSON.parse(itemsJson);
-    } catch (e) {
-        return { success: false, message: 'Ürün bilgileri hatalı.' };
+    } catch {
+        return { success: false, message: 'Server error parsing message' };
     }
 
     if (!quoteItems || quoteItems.length === 0) {
@@ -70,7 +70,7 @@ export async function submitQuote(prevState: any, formData: FormData) {
         try {
             const fileContent = await fs.readFile(filePath, 'utf-8');
             quotes = JSON.parse(fileContent);
-        } catch (error) {
+        } catch {
             // File might not exist or be empty, start fresh
             quotes = [];
         }
@@ -97,7 +97,7 @@ export async function getQuotes() {
         const filePath = path.join(process.cwd(), 'src/data/quotes.json');
         const fileContent = await fs.readFile(filePath, 'utf-8');
         return JSON.parse(fileContent);
-    } catch (error) {
+    } catch {
         return [];
     }
 }

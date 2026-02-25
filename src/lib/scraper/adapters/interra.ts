@@ -26,6 +26,7 @@ export class InterraAdapter extends BaseAdapter {
 
             await page.evaluateOnNewDocument(() => {
                 Object.defineProperty(navigator, 'webdriver', { get: () => false });
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
                 // @ts-ignore
                 window.navigator.chrome = { runtime: {} };
             });
@@ -43,7 +44,7 @@ export class InterraAdapter extends BaseAdapter {
                 console.log('⏳ Waiting for Product Container (#product-show)...');
                 await page.waitForSelector('#product-show', { timeout: 15000 });
                 console.log('✅ Product Container Loaded.');
-            } catch (e) {
+            } catch {
                 console.warn('⚠️ Product container not found. Checking for language screen...');
 
                 // Fallback: Check if we are stuck on language screen
@@ -52,11 +53,11 @@ export class InterraAdapter extends BaseAdapter {
                     console.log('🚧 Stuck on Language Screen. Attempting Bypass...');
                     const trLink = await page.$('a[href*="/tr"]');
                     if (trLink) {
-                        await page.evaluate((el: any) => el.click(), trLink);
+                        await page.evaluate((el: HTMLElement) => el.click(), trLink);
                         console.log('✅ Clicked "TR". Waiting for #product-show...');
                         try {
                             await page.waitForSelector('#product-show', { timeout: 15000 });
-                        } catch (err) { console.error('❌ Failed to load product page after bypass.'); }
+                        } catch { console.error('❌ Failed to load product page after bypass.'); }
                     }
                 }
             }
@@ -67,7 +68,6 @@ export class InterraAdapter extends BaseAdapter {
 
             const data = await page.evaluate(() => {
                 const getText = (sel: string) => document.querySelector(sel)?.textContent?.trim() || '';
-                const getHtml = (sel: string) => document.querySelector(sel)?.innerHTML || '';
 
                 // User-Provided Selectors
                 const SELECTORS = {
@@ -117,7 +117,7 @@ export class InterraAdapter extends BaseAdapter {
                 // Images
                 const imageContainer = document.querySelector(SELECTORS.imageContainer);
                 const images = imageContainer
-                    ? Array.from(imageContainer.querySelectorAll('img')).map((img: any) => img.src)
+                    ? Array.from(imageContainer.querySelectorAll('img')).map((img: HTMLImageElement) => img.src)
                     : [];
 
                 // Fallback for PDFs (Global search as they might be in tabs)
@@ -208,8 +208,9 @@ export class InterraAdapter extends BaseAdapter {
         const data = await super.scrapeRaw();
 
         // Fix images list
-        if (this.$) {
-            const images = this.$('.extracted-images img').map((_, el) => this.$(el).attr('src')).get();
+        const $ = this.$;
+        if ($) {
+            const images = $('.extracted-images img').map((_, el) => $(el).attr('src')).get();
             if (images.length > 0) {
                 data.rawImages = images;
             }

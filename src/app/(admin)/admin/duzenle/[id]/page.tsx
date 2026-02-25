@@ -1,4 +1,4 @@
-import { getProduct } from '@/app/actions/product';
+import { getProduct, getDistinctBrands, getDistinctCategories } from '@/app/actions/product';
 import { ProductForm } from '@/components/admin/ProductForm';
 import { notFound } from 'next/navigation';
 
@@ -11,6 +11,8 @@ interface EditProductPageProps {
 export default async function EditProductPage({ params }: EditProductPageProps) {
     const { id } = await params; // Await
     const product = await getProduct(id);
+    const brands = await getDistinctBrands();
+    const categories = await getDistinctCategories();
 
     if (!product) {
         notFound();
@@ -19,13 +21,13 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
     return (
         <div className="max-w-4xl mx-auto space-y-8">
             <div className="flex items-center justify-between">
-                <h2 className="text-2xl font-bold text-white">Edit Product</h2>
+                <h2 className="text-2xl font-bold text-foreground">Edit Product</h2>
                 <div className="px-3 py-1 bg-[var(--viktor-surface)] border border-[var(--viktor-border)] text-xs font-mono text-[var(--viktor-blue)]">
                     MODE: UPDATE :: {product.id.split('-')[0]}
                 </div>
             </div>
 
-            <ProductForm mode="update" initialData={product} />
+            <ProductForm mode="update" initialData={product} brands={brands} categories={categories} />
         </div>
     );
 }

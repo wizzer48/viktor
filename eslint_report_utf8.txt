@@ -1,0 +1,99 @@
+﻿
+C:\Bond\src\app\(admin)\admin\importer\page.tsx
+  28:26  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Bond\src\app\(admin)\admin\importer\toplu\page.tsx
+  122:11  warning  'progress' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Bond\src\app\(public)\iletisim\page.tsx
+  9:7  warning  'initialState' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Bond\src\app\(public)\teklif\page.tsx
+  47:18  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Bond\src\app\(public)\urunler\[id]\page.tsx
+  4:8  warning  'Image' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Bond\src\app\actions\product.ts
+  12:22  error  A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+
+C:\Bond\src\app\actions\quote.ts
+   42:14  warning  'e' is defined but never used      @typescript-eslint/no-unused-vars
+   73:18  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  100:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Bond\src\app\admin\teklifler\page.tsx
+   4:30  warning  'User' is defined but never used                                 @typescript-eslint/no-unused-vars
+  28:40  error    Unexpected any. Specify a different type                         @typescript-eslint/no-explicit-any
+  52:45  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  52:59  error    `"` can be escaped with `&quot;`, `&ldquo;`, `&#34;`, `&rdquo;`  react/no-unescaped-entities
+  59:69  error    Unexpected any. Specify a different type                         @typescript-eslint/no-explicit-any
+
+C:\Bond\src\app\api\backfill\route.ts
+  27:120  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  47:17   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Bond\src\app\login\page.tsx
+  16:31  warning  'isPending' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Bond\src\app\page.tsx
+  223:10  warning  'ServiceCard' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Bond\src\components\admin\ProductForm.tsx
+   64:11  warning  'addSpec' is assigned a value but never used     @typescript-eslint/no-unused-vars
+   65:11  warning  'removeSpec' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   70:11  warning  'updateSpec' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  119:46  error    Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  132:11  warning  'specsJson' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+C:\Bond\src\components\ui\input.tsx
+  5:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+C:\Bond\src\components\ui\textarea.tsx
+  5:18  error  An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+
+C:\Bond\src\context\QuoteContext.tsx
+  33:17  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Bond\src\context\QuoteContext.tsx:33:17
+  31 |         if (saved) {
+  32 |             try {
+> 33 |                 setItems(JSON.parse(saved));
+     |                 ^^^^^^^^ Avoid calling setState() directly within an effect
+  34 |             } catch (e) {
+  35 |                 console.error('Failed to parse quote basket', e);
+  36 |             }  react-hooks/set-state-in-effect
+
+C:\Bond\src\lib\scraper\adapters\core.ts
+  89:25  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Bond\src\lib\scraper\adapters\interra.ts
+   29:17  error    Use "@ts-expect-error" instead of "@ts-ignore", as "@ts-ignore" will do nothing if the following line is error-free  @typescript-eslint/ban-ts-comment
+   46:22  warning  'e' is defined but never used                                                                                        @typescript-eslint/no-unused-vars
+   55:50  error    Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+   59:34  warning  'err' is defined but never used                                                                                      @typescript-eslint/no-unused-vars
+   70:23  warning  'getHtml' is assigned a value but never used                                                                         @typescript-eslint/no-unused-vars
+  120:84  error    Unexpected any. Specify a different type                                                                             @typescript-eslint/no-explicit-any
+
+C:\Bond\src\lib\scraper\backfill.ts
+   9:103  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  37:18   warning  'err' is defined but never used           @typescript-eslint/no-unused-vars
+
+C:\Bond\src\lib\scraper\engine.ts
+    9:8   warning  'fs' is defined but never used                  @typescript-eslint/no-unused-vars
+   14:7   warning  'DATA_FILE' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   41:37  error    A `require()` style import is forbidden         @typescript-eslint/no-require-imports
+  151:96  error    Unexpected any. Specify a different type        @typescript-eslint/no-explicit-any
+  322:30  error    A `require()` style import is forbidden         @typescript-eslint/no-require-imports
+
+C:\Bond\src\lib\scraper\types.ts
+  53:15  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+Ô£û 41 problems (20 errors, 21 warnings)
+

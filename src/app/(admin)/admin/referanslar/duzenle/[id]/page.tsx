@@ -15,7 +15,7 @@ export default async function EditProjectPage({ params }: EditProjectPageProps) 
 
     return (
         <div className="max-w-3xl mx-auto space-y-6">
-            <h2 className="text-2xl font-bold text-white">Edit Project: {project.name}</h2>
+            <h2 className="text-2xl font-bold text-foreground">Edit Project: {project.name}</h2>
             <ProjectForm mode="update" initialData={project} />
         </div>
     );

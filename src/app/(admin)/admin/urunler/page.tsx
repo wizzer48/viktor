@@ -37,11 +37,18 @@ export default async function AdminProductsPage({
                     <h2 className="text-3xl font-bold text-foreground">Ürün Yönetimi</h2>
                     <p className="text-[var(--viktor-slate)]">Toplam {products.length} ürün • {filtered.length} gösteriliyor</p>
                 </div>
-                <Link href="/admin/ekle">
-                    <Button className="bg-[var(--viktor-blue)] hover:bg-[#0090ad] text-white">
-                        <Plus className="w-4 h-4 mr-2" /> Yeni Ürün Ekle
-                    </Button>
-                </Link>
+                <div className="flex items-center gap-2">
+                    <Link href="/admin/urunler/toplu-duzenle">
+                        <Button variant="outline" className="border-[var(--viktor-blue)] text-[var(--viktor-blue)] hover:bg-[var(--viktor-blue)] hover:text-white">
+                            Toplu Düzenle
+                        </Button>
+                    </Link>
+                    <Link href="/admin/ekle">
+                        <Button className="bg-[var(--viktor-blue)] hover:bg-[#0090ad] text-white">
+                            <Plus className="w-4 h-4 mr-2" /> Yeni Ürün Ekle
+                        </Button>
+                    </Link>
+                </div>
             </div>
 
             {/* Filters */}
@@ -109,7 +116,7 @@ export default async function AdminProductsPage({
                                 <tr key={product.id} className="hover:bg-[var(--viktor-blue)]/5 transition-colors group">
                                     <td className="p-4">
                                         <div className="relative w-12 h-12 bg-[var(--viktor-bg)] rounded-lg overflow-hidden border border-[var(--viktor-border)]">
-                                            <Image src={product.imagePath || product.images?.[0] || '/placeholder.svg'} alt="" fill className="object-cover" />
+                                            <Image src={product.imagePath || product.images?.[0] || '/placeholder.svg'} alt={product.name || "Ürün Görseli"} fill className="object-cover" />
                                         </div>
                                     </td>
                                     <td className="p-4">

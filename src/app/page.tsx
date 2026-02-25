@@ -91,7 +91,7 @@ export default async function Home() {
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 auto-rows-[240px]">
                     {/* Item 1: Akıllı Ev (Large Feature) */}
-                    <div className="group relative overflow-hidden rounded-2xl md:col-span-2 md:row-span-2 bg-[var(--viktor-surface)] border border-[var(--viktor-border)] p-8 flex flex-col justify-end hover:border-[var(--viktor-blue)] transition-all duration-500">
+                    <Link href="/urunler?category=Akıllı Bina Otomasyonu" className="group relative overflow-hidden rounded-2xl md:col-span-2 md:row-span-2 bg-[var(--viktor-surface)] border border-[var(--viktor-border)] p-8 flex flex-col justify-end hover:border-[var(--viktor-blue)] transition-all duration-500">
                         <div className="absolute top-0 right-0 -mt-8 -mr-8 w-64 h-64 bg-[var(--viktor-blue)]/10 blur-3xl rounded-full group-hover:bg-[var(--viktor-blue)]/25 transition-all duration-700" />
                         <HomeIcon className="w-12 h-12 text-[var(--viktor-blue)] mb-auto relative z-10 group-hover:scale-110 transition-transform duration-500" />
                         <div className="relative z-10 mt-4">
@@ -100,10 +100,10 @@ export default async function Home() {
                                 KNX ve IoT tabanlı endüstriyel standartlarda ev otomasyonu. Konforunuzu artırırken enerji verimliliğini maksimize eden, tek noktadan yönetilebilir yaşam alanları.
                             </p>
                         </div>
-                    </div>
+                    </Link>
 
                     {/* Item 2: Otel (Wide) */}
-                    <div className="group relative overflow-hidden rounded-2xl md:col-span-2 md:row-span-1 bg-[var(--viktor-surface)] border border-[var(--viktor-border)] p-8 flex items-center gap-6 hover:border-[var(--viktor-blue)] transition-all duration-300">
+                    <Link href="/urunler?category=Otel Çözümleri" className="group relative overflow-hidden rounded-2xl md:col-span-2 md:row-span-1 bg-[var(--viktor-surface)] border border-[var(--viktor-border)] p-8 flex items-center gap-6 hover:border-[var(--viktor-blue)] transition-all duration-300">
                         <div className="p-4 bg-[var(--viktor-blue)]/10 rounded-xl group-hover:bg-[var(--viktor-blue)]/20 transition-colors">
                             <Building2 className="w-8 h-8 text-[var(--viktor-blue)]" />
                         </div>
@@ -111,38 +111,38 @@ export default async function Home() {
                             <h3 className="text-xl font-bold text-foreground mb-2">Otel Otomasyonu (GRMS)</h3>
                             <p className="text-sm text-[var(--viktor-slate)]">Misafir konforunu zirveye taşıyan, eşzamanlı enerji tasarrufu sağlayan akıllı oda yönetim sistemleri.</p>
                         </div>
-                    </div>
+                    </Link>
 
                     {/* Item 3: Ticari Bina (Accent) */}
-                    <div className="group relative overflow-hidden rounded-2xl md:col-span-1 md:row-span-1 bg-[var(--viktor-blue)] p-6 flex flex-col justify-between hover:shadow-lg hover:shadow-[var(--viktor-blue)]/30 transition-all duration-300">
+                    <Link href="/urunler?category=Akıllı Bina Otomasyonu" className="group relative overflow-hidden rounded-2xl md:col-span-1 md:row-span-1 bg-[var(--viktor-blue)] p-6 flex flex-col justify-between hover:shadow-lg hover:shadow-[var(--viktor-blue)]/30 transition-all duration-300">
                         <Building2 className="w-8 h-8 text-white/80 group-hover:text-white transition-colors" />
                         <div>
                             <h3 className="text-lg font-bold text-white mb-1">Ticari Bina</h3>
                             <p className="text-xs text-white/70">A sınıfı plazalar için DALI ve Merkezi BMS (Bina Yönetim) entegrasyonu.</p>
                         </div>
-                    </div>
+                    </Link>
 
                     {/* Item 4: Ağ (Square) */}
-                    <div className="group relative overflow-hidden rounded-2xl md:col-span-1 md:row-span-1 bg-[var(--viktor-surface)] border border-[var(--viktor-border)] p-6 flex flex-col justify-between hover:border-[var(--viktor-blue)] transition-all duration-300">
+                    <Link href="/urunler?category=Ağ & Altyapı" className="group relative overflow-hidden rounded-2xl md:col-span-1 md:row-span-1 bg-[var(--viktor-surface)] border border-[var(--viktor-border)] p-6 flex flex-col justify-between hover:border-[var(--viktor-blue)] transition-all duration-300">
                         <Server className="w-8 h-8 text-[var(--viktor-slate)] group-hover:text-[var(--viktor-blue)] transition-colors" />
                         <div>
                             <h3 className="text-lg font-bold text-foreground mb-1">Ağ & BT</h3>
                             <p className="text-xs text-[var(--viktor-slate)]">Kesintisiz Wi-Fi, yapısal kablolama ve güvenli sunucu odası kurulumları.</p>
                         </div>
-                    </div>
+                    </Link>
 
                     {/* Item 5: Aydınlatma (Wide) */}
-                    <div className="group relative overflow-hidden rounded-2xl md:col-span-2 md:row-span-1 bg-[var(--viktor-surface)] border border-[var(--viktor-border)] p-8 flex items-center justify-between hover:border-[var(--viktor-blue)] transition-all duration-500">
+                    <Link href="/urunler?category=Anahtar & Priz Grubu" className="group relative overflow-hidden rounded-2xl md:col-span-2 md:row-span-1 bg-[var(--viktor-surface)] border border-[var(--viktor-border)] p-8 flex items-center justify-between hover:border-[var(--viktor-blue)] transition-all duration-500">
                         <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[var(--viktor-blue)]/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                         <div className="relative z-10 max-w-sm">
                             <h3 className="text-xl font-bold text-foreground mb-2">Aydınlatma Tasarımı</h3>
                             <p className="text-sm text-[var(--viktor-slate)]">Mimari projeler için DALI senaryo kontrolü, insan odaklı aydınlatma (HCL) ve tunable white uygulamaları.</p>
                         </div>
                         <Lightbulb className="w-12 h-12 text-[var(--viktor-blue)]/40 group-hover:text-[var(--viktor-blue)] transition-colors relative z-10" />
-                    </div>
+                    </Link>
 
                     {/* Item 6: Zayıf Akım (Wide) */}
-                    <div className="group relative overflow-hidden rounded-2xl md:col-span-2 md:row-span-1 bg-[var(--viktor-surface)] border border-[var(--viktor-border)] p-8 flex items-center gap-6 hover:border-[var(--viktor-blue)] transition-all duration-300">
+                    <Link href="/urunler?category=Güvenlik & İnterkom" className="group relative overflow-hidden rounded-2xl md:col-span-2 md:row-span-1 bg-[var(--viktor-surface)] border border-[var(--viktor-border)] p-8 flex items-center gap-6 hover:border-[var(--viktor-blue)] transition-all duration-300">
                         <div className="p-4 bg-[var(--viktor-blue)]/10 rounded-xl group-hover:bg-[var(--viktor-blue)]/20 transition-colors">
                             <Cctv className="w-8 h-8 text-[var(--viktor-slate)]" />
                         </div>
@@ -150,7 +150,7 @@ export default async function Home() {
                             <h3 className="text-xl font-bold text-foreground mb-2">Zayıf Akım Sistemleri</h3>
                             <p className="text-sm text-[var(--viktor-slate)]">IP CCTV, Yangın Algılama, Kartlı Geçiş ve Genel Seslendirme sistemlerinin kusursuz entegrasyonu.</p>
                         </div>
-                    </div>
+                    </Link>
 
                 </div>
             </section>
@@ -216,20 +216,6 @@ export default async function Home() {
                 </div>
             </section>
 
-        </div>
-    );
-}
-
-function ServiceCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
-    return (
-        <div className="p-8 bg-[var(--viktor-bg)] border border-[var(--viktor-border)] hover:border-[var(--viktor-blue)] transition-colors duration-300 rounded-sm group">
-            <div className="w-12 h-12 bg-[var(--viktor-surface)] border border-[var(--viktor-border)] rounded-sm flex items-center justify-center text-[var(--viktor-blue)] mb-6 group-hover:bg-[var(--viktor-blue)] group-hover:text-white transition-colors">
-                {icon}
-            </div>
-            <h3 className="text-xl font-bold text-foreground mb-3">{title}</h3>
-            <p className="text-[var(--viktor-slate)] leading-relaxed text-sm">
-                {description}
-            </p>
         </div>
     );
 }

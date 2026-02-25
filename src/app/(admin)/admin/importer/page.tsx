@@ -25,7 +25,7 @@ export default function ImporterPage() {
             if (cookies.trim()) {
                 try {
                     parsedCookies = JSON.parse(cookies);
-                } catch (e) {
+                } catch {
                     setResult({ success: false, message: 'Invalid JSON Cookies format' });
                     setLoading(false);
                     return;
@@ -56,7 +56,7 @@ export default function ImporterPage() {
                         <select
                             value={brand}
                             onChange={(e) => setBrand(e.target.value as Brand)}
-                            className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] text-white p-2 text-sm focus:border-[var(--viktor-blue)] outline-none"
+                            className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] text-foreground p-2 text-sm focus:border-[var(--viktor-blue)] outline-none"
                         >
                             {brands.map((b) => (
                                 <option key={b} value={b}>{b}</option>
@@ -71,7 +71,7 @@ export default function ImporterPage() {
                             value={url}
                             onChange={(e) => setUrl(e.target.value)}
                             placeholder="https://example.com/product-page..."
-                            className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] text-white p-2 text-sm focus:border-[var(--viktor-blue)] outline-none font-mono"
+                            className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] text-foreground p-2 text-sm focus:border-[var(--viktor-blue)] outline-none font-mono"
                         />
                     </div>
                 </div>

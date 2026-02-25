@@ -14,7 +14,7 @@ export default async function AdminDashboardPage() {
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-3xl font-bold text-white">Dashboard</h2>
+                    <h2 className="text-3xl font-bold text-foreground">Dashboard</h2>
                     <p className="text-[var(--viktor-slate)]">Manage catalog and content.</p>
                 </div>
                 <div className="flex gap-4">
@@ -35,22 +35,22 @@ export default async function AdminDashboardPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-[var(--viktor-surface)] border border-[var(--viktor-border)] p-6 rounded-sm">
                     <h3 className="text-xs font-mono text-[var(--viktor-slate)] uppercase">Total Products</h3>
-                    <p className="text-4xl font-bold text-white mt-2">{products.length}</p>
+                    <p className="text-4xl font-bold text-foreground mt-2">{products.length}</p>
                 </div>
                 <div className="bg-[var(--viktor-surface)] border border-[var(--viktor-border)] p-6 rounded-sm">
                     <h3 className="text-xs font-mono text-[var(--viktor-slate)] uppercase">Brands</h3>
-                    <p className="text-4xl font-bold text-white mt-2">{new Set(products.map(p => p.brand)).size}</p>
+                    <p className="text-4xl font-bold text-foreground mt-2">{new Set(products.map(p => p.brand)).size}</p>
                 </div>
                 <div className="bg-[var(--viktor-surface)] border border-[var(--viktor-border)] p-6 rounded-sm">
                     <h3 className="text-xs font-mono text-[var(--viktor-slate)] uppercase">Categories</h3>
-                    <p className="text-4xl font-bold text-white mt-2">{new Set(products.map(p => p.category)).size}</p>
+                    <p className="text-4xl font-bold text-foreground mt-2">{new Set(products.map(p => p.category)).size}</p>
                 </div>
             </div>
 
             {/* Product Table */}
             <div className="bg-[var(--viktor-surface)] border border-[var(--viktor-border)] rounded-sm overflow-hidden">
                 <div className="p-4 border-b border-[var(--viktor-border)] flex justify-between items-center bg-[var(--viktor-bg)]">
-                    <h3 className="font-bold text-white">Recent Products</h3>
+                    <h3 className="font-bold text-foreground">Recent Products</h3>
                     <span className="text-xs text-[var(--viktor-slate)]">Latest entries</span>
                 </div>
                 <table className="w-full text-left text-sm">
@@ -68,10 +68,10 @@ export default async function AdminDashboardPage() {
                             <tr key={product.id} className="hover:bg-white/5 transition-colors group">
                                 <td className="p-4">
                                     <div className="relative w-12 h-12 bg-white/5 rounded-sm overflow-hidden">
-                                        <Image src={product.imagePath || product.images?.[0] || '/placeholder.svg'} alt="" fill className="object-cover" />
+                                        <Image src={product.imagePath || product.images?.[0] || '/placeholder.svg'} alt={product.name || "Ürün Görseli"} fill className="object-cover" />
                                     </div>
                                 </td>
-                                <td className="p-4 font-medium text-white">{product.name}</td>
+                                <td className="p-4 font-medium text-foreground">{product.name}</td>
                                 <td className="p-4 text-[var(--viktor-slate)]">
                                     <span className="bg-[var(--viktor-bg)] border border-[var(--viktor-border)] px-2 py-1 rounded-sm text-xs">
                                         {product.brand}
@@ -81,7 +81,7 @@ export default async function AdminDashboardPage() {
                                 <td className="p-4 text-right">
                                     <div className="flex items-center justify-end gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
                                         <Link href={`/urunler/${product.id}`} target="_blank">
-                                            <Button size="icon" variant="ghost" className="h-8 w-8 text-[var(--viktor-slate)] hover:text-white">
+                                            <Button size="icon" variant="ghost" className="h-8 w-8 text-[var(--viktor-slate)] hover:text-foreground">
                                                 <ArrowUpRight className="w-4 h-4" />
                                             </Button>
                                         </Link>

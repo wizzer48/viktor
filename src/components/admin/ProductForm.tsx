@@ -5,16 +5,15 @@ import { addProduct, updateProduct } from '@/app/actions/product';
 import { useState, useRef } from 'react';
 import { Upload, Plus, X, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import categoryMap from '@/data/category-map.json';
-import { Product } from '@/lib/scraper/types';
+import { Product, Variant } from '@/lib/scraper/types';
+import { Combobox } from '@/components/ui/combobox';
 import Image from 'next/image';
-
-const BRANDS = ['Legrand', 'Interra', 'EAE', 'Core', 'Hager', 'Astrum', 'Bticino'];
-const CATEGORIES = Object.keys(categoryMap.GlobalRules).sort();
 
 interface ProductFormProps {
     mode: 'create' | 'update';
     initialData?: Product;
+    brands: string[];
+    categories: string[];
 }
 
 const initialState = {
@@ -22,16 +21,13 @@ const initialState = {
     message: ''
 };
 
-export function ProductForm({ mode, initialData }: ProductFormProps) {
+export function ProductForm({ mode, initialData, brands, categories }: ProductFormProps) {
     const action = mode === 'create' ? addProduct : updateProduct;
     const [state, formAction, isPending] = useActionState(action, initialState);
 
     // State
-    const [specs, setSpecs] = useState<{ key: string, value: string }[]>(
-        initialData?.specs
-            ? Object.entries(initialData.specs).map(([key, value]) => ({ key, value }))
-            : [{ key: '', value: '' }]
-    );
+    // Preserve existing specs silently
+    const specsJson = JSON.stringify(initialData?.specs || {});
 
     // Image Previews (New uploads)
     const [imagePreviews, setImagePreviews] = useState<string[]>([]);
@@ -62,24 +58,65 @@ export function ProductForm({ mode, initialData }: ProductFormProps) {
         }
     };
 
-    const addSpec = () => setSpecs([...specs, { key: '', value: '' }]);
-    const removeSpec = (index: number) => {
-        const newSpecs = [...specs];
-        newSpecs.splice(index, 1);
-        setSpecs(newSpecs);
+
+
+    // Features
+    const [features, setFeatures] = useState<string[]>(initialData?.features || []);
+    const addFeature = () => setFeatures([...features, '']);
+    const removeFeature = (index: number) => {
+        const newArr = [...features];
+        newArr.splice(index, 1);
+        setFeatures(newArr);
     };
-    const updateSpec = (index: number, field: 'key' | 'value', val: string) => {
-        const newSpecs = [...specs];
-        newSpecs[index][field] = val;
-        setSpecs(newSpecs);
+    const updateFeature = (index: number, val: string) => {
+        const newArr = [...features];
+        newArr[index] = val;
+        setFeatures(newArr);
     };
 
-    const specsJson = JSON.stringify(
-        specs.reduce((acc, curr) => {
-            if (curr.key && curr.value) acc[curr.key] = curr.value;
-            return acc;
-        }, {} as Record<string, string>)
-    );
+    // Downloads
+    const [downloads, setDownloads] = useState<{ title: string, url: string }[]>(initialData?.downloads || []);
+    const addDownload = () => setDownloads([...downloads, { title: '', url: '' }]);
+    const removeDownload = (index: number) => {
+        const newArr = [...downloads];
+        newArr.splice(index, 1);
+        setDownloads(newArr);
+    };
+    const updateDownload = (index: number, field: 'title' | 'url', val: string) => {
+        const newArr = [...downloads];
+        newArr[index][field] = val;
+        setDownloads(newArr);
+    };
+
+    // Videos
+    const [videos, setVideos] = useState<string[]>(initialData?.videos || []);
+    const addVideo = () => setVideos([...videos, '']);
+    const removeVideo = (index: number) => {
+        const newArr = [...videos];
+        newArr.splice(index, 1);
+        setVideos(newArr);
+    };
+    const updateVideo = (index: number, val: string) => {
+        const newArr = [...videos];
+        newArr[index] = val;
+        setVideos(newArr);
+    };
+
+    // Variants
+    const [variants, setVariants] = useState<Variant[]>(initialData?.variants || []);
+    const addVariant = () => setVariants([...variants, { group: '', name: '', hex: '', image: '' }]);
+    const removeVariant = (index: number) => {
+        const newArr = [...variants];
+        newArr.splice(index, 1);
+        setVariants(newArr);
+    };
+    const updateVariant = (index: number, field: 'group' | 'name' | 'hex' | 'image', val: string) => {
+        const newArr = [...variants];
+        newArr[index][field] = val;
+        setVariants(newArr);
+    };
+
+
 
     return (
         <form ref={formRef} action={formAction} className="space-y-8 bg-[var(--viktor-surface)] border border-[var(--viktor-border)] p-8 rounded-sm">
@@ -92,47 +129,40 @@ export function ProductForm({ mode, initialData }: ProductFormProps) {
             )}
 
             <input type="hidden" name="id" value={initialData?.id} />
+            <input type="hidden" name="specs" value={specsJson} />
 
             {/* Basic Info */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                     <label className="text-xs font-mono uppercase text-[var(--viktor-slate)]">Brand</label>
-                    <input
-                        list="brands"
+                    <Combobox
                         name="brand"
+                        options={brands}
                         defaultValue={initialData?.brand}
-                        required
-                        className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-white outline-none focus:border-[var(--viktor-blue)]"
                         placeholder="Select or Type Brand..."
+                        required
                     />
-                    <datalist id="brands">
-                        {BRANDS.map(b => <option key={b} value={b} />)}
-                    </datalist>
                 </div>
 
                 <div className="space-y-2">
                     <label className="text-xs font-mono uppercase text-[var(--viktor-slate)]">Category</label>
-                    <input
-                        list="categories"
+                    <Combobox
                         name="category"
+                        options={categories}
                         defaultValue={initialData?.category}
-                        required
-                        className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-white outline-none focus:border-[var(--viktor-blue)]"
                         placeholder="Select or Type Category..."
+                        required
                     />
-                    <datalist id="categories">
-                        {CATEGORIES.map(c => <option key={c} value={c} />)}
-                    </datalist>
                 </div>
 
                 <div className="col-span-1 md:col-span-2 space-y-2">
                     <label className="text-xs font-mono uppercase text-[var(--viktor-slate)]">Product Name</label>
-                    <input name="name" type="text" defaultValue={initialData?.name} required placeholder="Ex: KNX Smart Touch Panel 4''" className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-white outline-none focus:border-[var(--viktor-blue)]" />
+                    <input name="name" type="text" defaultValue={initialData?.name} required placeholder="Ex: KNX Smart Touch Panel 4''" className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-foreground outline-none focus:border-[var(--viktor-blue)]" />
                 </div>
 
                 <div className="col-span-1 md:col-span-2 space-y-2">
                     <label className="text-xs font-mono uppercase text-[var(--viktor-slate)]">Description</label>
-                    <textarea name="description" defaultValue={initialData?.description} rows={4} className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-white outline-none focus:border-[var(--viktor-blue)]" />
+                    <textarea name="description" defaultValue={initialData?.description} rows={4} className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-foreground outline-none focus:border-[var(--viktor-blue)]" />
                 </div>
             </div>
 
@@ -182,40 +212,138 @@ export function ProductForm({ mode, initialData }: ProductFormProps) {
                 </div>
             </div>
 
-            {/* Spec Builder */}
-            <div className="pt-6 border-t border-[var(--viktor-border)]">
-                <div className="flex items-center justify-between mb-4">
-                    <label className="text-xs font-mono uppercase text-[var(--viktor-slate)]">Technical Specifications</label>
-                    <button type="button" onClick={addSpec} className="text-[var(--viktor-blue)] text-xs flex items-center gap-1 hover:underline">
-                        <Plus className="w-3 h-3" /> Add Spec
-                    </button>
+            {/* Multi-fields Section */}
+            <div className="grid grid-cols-1 gap-6 pt-6 border-t border-[var(--viktor-border)]">
+
+                {/* Features */}
+                <div>
+                    <div className="flex items-center justify-between mb-2">
+                        <label className="text-xs font-mono uppercase text-[var(--viktor-slate)]">Features (Bullet Points)</label>
+                        <button type="button" onClick={addFeature} className="text-[var(--viktor-blue)] text-xs flex items-center gap-1 hover:underline">
+                            <Plus className="w-3 h-3" /> Add Feature
+                        </button>
+                    </div>
+                    <input type="hidden" name="features" value={JSON.stringify(features.filter(f => f.trim() !== ''))} />
+                    <div className="space-y-2">
+                        {features.map((feat, i) => (
+                            <div key={`feat-${i}`} className="flex gap-2">
+                                <input
+                                    type="text"
+                                    placeholder="Ex: Built-in temperature sensor"
+                                    value={feat}
+                                    onChange={(e) => updateFeature(i, e.target.value)}
+                                    className="flex-1 bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-foreground text-sm outline-none focus:border-[var(--viktor-blue)]"
+                                />
+                                <button type="button" onClick={() => removeFeature(i)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-sm">
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
                 </div>
 
-                <input type="hidden" name="specs" value={specsJson} />
-
-                <div className="space-y-2">
-                    {specs.map((spec, i) => (
-                        <div key={i} className="flex gap-2">
-                            <input
-                                type="text"
-                                placeholder="Key"
-                                value={spec.key}
-                                onChange={(e) => updateSpec(i, 'key', e.target.value)}
-                                className="flex-1 bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-white text-sm outline-none focus:border-[var(--viktor-blue)]"
-                            />
-                            <input
-                                type="text"
-                                placeholder="Value"
-                                value={spec.value}
-                                onChange={(e) => updateSpec(i, 'value', e.target.value)}
-                                className="flex-1 bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-white text-sm outline-none focus:border-[var(--viktor-blue)]"
-                            />
-                            <button type="button" onClick={() => removeSpec(i)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-sm">
-                                <X className="w-4 h-4" />
-                            </button>
-                        </div>
-                    ))}
+                {/* Downloads */}
+                <div>
+                    <div className="flex items-center justify-between mb-2">
+                        <label className="text-xs font-mono uppercase text-[var(--viktor-slate)]">Downloads (PDFs/CAD)</label>
+                        <button type="button" onClick={addDownload} className="text-[var(--viktor-blue)] text-xs flex items-center gap-1 hover:underline">
+                            <Plus className="w-3 h-3" /> Add Download
+                        </button>
+                    </div>
+                    <input type="hidden" name="downloads" value={JSON.stringify(downloads.filter(d => d.title.trim() && d.url.trim()))} />
+                    <div className="space-y-2">
+                        {downloads.map((doc, i) => (
+                            <div key={`doc-${i}`} className="flex flex-col sm:flex-row gap-2">
+                                <input
+                                    type="text"
+                                    placeholder="Doc Title (e.g. User Manual)"
+                                    value={doc.title}
+                                    onChange={(e) => updateDownload(i, 'title', e.target.value)}
+                                    className="flex-1 bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-foreground text-sm outline-none focus:border-[var(--viktor-blue)]"
+                                />
+                                <input
+                                    type="text"
+                                    placeholder="URL (e.g. /uploads/manual.pdf)"
+                                    value={doc.url}
+                                    onChange={(e) => updateDownload(i, 'url', e.target.value)}
+                                    className="flex-1 bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-foreground text-sm outline-none focus:border-[var(--viktor-blue)]"
+                                />
+                                <button type="button" onClick={() => removeDownload(i)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-sm shrink-0">
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
                 </div>
+
+                {/* Videos */}
+                <div>
+                    <div className="flex items-center justify-between mb-2">
+                        <label className="text-xs font-mono uppercase text-[var(--viktor-slate)]">Videos (YouTube Embed Links)</label>
+                        <button type="button" onClick={addVideo} className="text-[var(--viktor-blue)] text-xs flex items-center gap-1 hover:underline">
+                            <Plus className="w-3 h-3" /> Add Video
+                        </button>
+                    </div>
+                    <input type="hidden" name="videos" value={JSON.stringify(videos.filter(v => v.trim() !== ''))} />
+                    <div className="space-y-2">
+                        {videos.map((vid, i) => (
+                            <div key={`vid-${i}`} className="flex gap-2">
+                                <input
+                                    type="text"
+                                    placeholder="Ex: https://www.youtube.com/embed/..."
+                                    value={vid}
+                                    onChange={(e) => updateVideo(i, e.target.value)}
+                                    className="flex-1 bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-foreground text-sm outline-none focus:border-[var(--viktor-blue)]"
+                                />
+                                <button type="button" onClick={() => removeVideo(i)} className="p-2 text-red-500 hover:bg-red-500/10 rounded-sm">
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Variants */}
+                <div>
+                    <div className="flex items-center justify-between mb-2">
+                        <label className="text-xs font-mono uppercase text-[var(--viktor-slate)]">Premium Varyantlar (Renk & Materyal)</label>
+                        <button type="button" onClick={addVariant} className="text-[var(--viktor-blue)] text-xs flex items-center gap-1 hover:underline">
+                            <Plus className="w-3 h-3" /> Varyant Ekle
+                        </button>
+                    </div>
+                    <input type="hidden" name="variants" value={JSON.stringify(variants.filter(v => v.name.trim() !== ''))} />
+                    <div className="space-y-4">
+                        {variants.map((v, i) => (
+                            <div key={`var-${i}`} className="flex flex-col sm:flex-row gap-2 border border-[var(--viktor-border)] p-4 bg-black/10 rounded-sm relative">
+                                <button type="button" onClick={() => removeVariant(i)} className="absolute top-2 right-2 p-1 text-red-500 hover:bg-red-500/10 rounded-sm">
+                                    <X className="w-4 h-4" />
+                                </button>
+                                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full pr-8">
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] text-gray-500 uppercase">Grup (Örn: Brushed)</label>
+                                        <input type="text" value={v.group || ''} onChange={(e) => updateVariant(i, 'group', e.target.value)} className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-sm focus:border-[var(--viktor-blue)] outline-none" placeholder="Brushed Finish" />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] text-gray-500 uppercase">İsim *</label>
+                                        <input type="text" value={v.name || ''} onChange={(e) => updateVariant(i, 'name', e.target.value)} className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-sm focus:border-[var(--viktor-blue)] outline-none" placeholder="Brass" required />
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] text-gray-500 uppercase">Renk (Hex/CSS)</label>
+                                        <div className="flex items-center gap-2">
+                                            <input type="color" value={v.hex || '#000000'} onChange={(e) => updateVariant(i, 'hex', e.target.value)} className="w-8 h-8 rounded shrink-0 cursor-pointer bg-transparent border-none p-0" />
+                                            <input type="text" value={v.hex || ''} onChange={(e) => updateVariant(i, 'hex', e.target.value)} className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-sm focus:border-[var(--viktor-blue)] outline-none font-mono" placeholder="#b5a36a" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <label className="text-[10px] text-gray-500 uppercase">Görsel URL</label>
+                                        <input type="text" value={v.image || ''} onChange={(e) => updateVariant(i, 'image', e.target.value)} className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] p-2 text-sm focus:border-[var(--viktor-blue)] outline-none" placeholder="/uploads/ürün.jpg" />
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
             </div>
 
             <Button type="submit" disabled={isPending} className="w-full bg-[var(--viktor-blue)] hover:bg-[#0090ad] text-white font-bold py-6 uppercase tracking-wider">

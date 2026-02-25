@@ -68,7 +68,12 @@
             "Connection": "Ağ & Altyapı"
         },
         "EAE": {
-            "Hotel Solutions": "Otel Çözümleri"
+            "Hotel Solutions": "Otel Çözümleri",
+            "Anahtarlar": "Anahtar & Priz Grubu",
+            "Prizler": "Anahtar & Priz Grubu",
+            "Sensörler": "Akıllı Bina Otomasyonu",
+            "Otel Grubu": "Otel Çözümleri",
+            "KNX": "Akıllı Bina Otomasyonu"
         },
         "Interra": {
             "Touch Panel": "Akıllı Bina Otomasyonu"

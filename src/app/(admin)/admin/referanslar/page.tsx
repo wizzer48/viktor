@@ -13,7 +13,7 @@ export default async function AdminProjectsPage() {
         <div className="space-y-8">
             <div className="flex items-center justify-between">
                 <div>
-                    <h2 className="text-3xl font-bold text-white">Project References</h2>
+                    <h2 className="text-3xl font-bold text-foreground">Project References</h2>
                     <p className="text-[var(--viktor-slate)]">Manage site portfolio.</p>
                 </div>
                 <Link href="/admin/referanslar/ekle">
@@ -30,11 +30,11 @@ export default async function AdminProjectsPage() {
                             <Image src={proj.imagePath} alt={proj.name} fill className="object-cover" />
                         </div>
                         <div className="p-4">
-                            <h3 className="font-bold text-white mb-1">{proj.name}</h3>
+                            <h3 className="font-bold text-foreground mb-1">{proj.name}</h3>
                             <p className="text-xs text-[var(--viktor-slate)] mb-4">{proj.location} • {proj.year}</p>
                             <div className="flex gap-2">
                                 <Link href={`/admin/referanslar/duzenle/${proj.id}`} className="flex-1">
-                                    <Button className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] hover:border-[var(--viktor-blue)] text-white">
+                                    <Button className="w-full bg-[var(--viktor-bg)] border border-[var(--viktor-border)] hover:border-[var(--viktor-blue)] text-foreground">
                                         <Edit className="w-4 h-4 mr-2" /> Edit
                                     </Button>
                                 </Link>

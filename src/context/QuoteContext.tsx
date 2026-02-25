@@ -30,6 +30,7 @@ export function QuoteProvider({ children }: { children: React.ReactNode }) {
         const saved = localStorage.getItem('viktor_quote_basket');
         if (saved) {
             try {
+                // eslint-disable-next-line react-hooks/set-state-in-effect
                 setItems(JSON.parse(saved));
             } catch (e) {
                 console.error('Failed to parse quote basket', e);

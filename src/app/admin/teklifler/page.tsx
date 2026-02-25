@@ -1,7 +1,16 @@
 import { getQuotes } from '@/app/actions/quote';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { FileText, Calendar, User, Phone, Mail } from 'lucide-react';
+import { FileText, Calendar, Phone, Mail } from 'lucide-react';
+
+type QuoteDisplay = {
+    id: string;
+    customer: { name: string; company?: string; email: string; phone: string };
+    createdAt: string;
+    status: string;
+    notes?: string;
+    items: { name: string; quantity: number }[];
+};
 
 export const dynamic = 'force-dynamic';
 
@@ -11,7 +20,7 @@ export default async function QuotesPage() {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h1 className="text-3xl font-bold text-white tracking-tight">Teklif Talepleri</h1>
+                <h1 className="text-3xl font-bold text-foreground tracking-tight">Teklif Talepleri</h1>
                 <Badge variant="outline" className="text-[var(--viktor-blue)] border-[var(--viktor-blue)]">
                     {quotes.length} Talep
                 </Badge>
@@ -21,16 +30,16 @@ export default async function QuotesPage() {
                 {quotes.length === 0 ? (
                     <div className="text-center py-12 bg-[var(--viktor-surface)] rounded-sm border border-[var(--viktor-border)]">
                         <FileText className="w-12 h-12 text-[var(--viktor-slate)] mx-auto mb-4" />
-                        <h3 className="text-lg font-bold text-white">Henüz teklif talebi yok</h3>
+                        <h3 className="text-lg font-bold text-foreground">Henüz teklif talebi yok</h3>
                         <p className="text-[var(--viktor-slate)]">Yeni talepler burada listelenecektir.</p>
                     </div>
                 ) : (
-                    quotes.map((quote: any) => (
+                    quotes.map((quote: QuoteDisplay) => (
                         <Card key={quote.id} className="bg-[var(--viktor-surface)] border-[var(--viktor-border)]">
                             <CardHeader className="pb-2">
                                 <div className="flex justify-between items-start">
                                     <div className="space-y-1">
-                                        <CardTitle className="text-white flex items-center gap-2">
+                                        <CardTitle className="text-foreground flex items-center gap-2">
                                             {quote.customer.name}
                                             {quote.customer.company && <span className="text-sm font-normal text-[var(--viktor-slate)]">({quote.customer.company})</span>}
                                         </CardTitle>
@@ -49,17 +58,17 @@ export default async function QuotesPage() {
                                 <div className="space-y-4">
                                     {quote.notes && (
                                         <div className="bg-[var(--viktor-bg)] p-3 rounded-sm border border-[var(--viktor-border)] text-sm text-[var(--viktor-slate)] italic">
-                                            "{quote.notes}"
+                                            &quot;{quote.notes}&quot;
                                         </div>
                                     )}
 
                                     <div className="border-t border-[var(--viktor-border)] pt-4">
                                         <h4 className="text-xs font-bold text-[var(--viktor-blue)] uppercase mb-2">Talep Edilen Ürünler</h4>
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
-                                            {quote.items.map((item: any, i: number) => (
+                                            {quote.items.map((item: { name: string; quantity: number }, i: number) => (
                                                 <div key={i} className="flex justify-between items-center bg-[var(--viktor-bg)] p-2 rounded-sm text-sm border border-[var(--viktor-border)]">
-                                                    <span className="text-white truncate pr-2">{item.name}</span>
-                                                    <Badge variant="secondary" className="bg-[var(--viktor-surface)] text-white font-mono">
+                                                    <span className="text-foreground truncate pr-2">{item.name}</span>
+                                                    <Badge variant="secondary" className="bg-[var(--viktor-surface)] text-foreground font-mono">
                                                         x{item.quantity}
                                                     </Badge>
                                                 </div>

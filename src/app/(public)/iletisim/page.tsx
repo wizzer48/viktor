@@ -5,13 +5,6 @@ import { Button } from '@/components/ui/button';
 import { useActionState } from 'react'; // Changed from 'react-dom' and useFormState/useFormStatus
 import { sendContact } from '@/app/actions/contact';
 
-// Added initialState for useActionState
-const initialState = {
-    success: false,
-    message: '',
-    errors: {}
-};
-
 export default function ContactPage() {
     return (
         <div className="min-h-screen bg-[var(--viktor-bg)] pt-20">

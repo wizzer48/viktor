@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const ProductSchema = z.object({
     id: z.string().optional(), // Generated on server if missing
-    brand: z.enum(['Legrand', 'Interra', 'EAE', 'Core', 'Viko', 'Schneider', 'Siemens', 'Abb', 'Zennio', 'Somfy', 'Dahua', 'Hikvision', 'Ajax', 'KnX', 'Panasonic', 'LG', 'Samsung', 'Daikin'] as const), // Add other brands as needed from sources.json
+    brand: z.enum(['Legrand', 'Interra', 'EAE', 'Core', 'Viko', 'Schneider', 'Siemens', 'Abb', 'Zennio', 'Somfy', 'Dahua', 'Hikvision', 'Ajax', 'KnX', 'Panasonic', 'LG', 'Samsung', 'Daikin'] as const), // Brands from sources table in viktor.db
     name: z.string().min(2, "Product name must be at least 2 characters"),
     category: z.string().min(1, "Category is required"),
     description: z.string().optional(),

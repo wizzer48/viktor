@@ -1,0 +1,91 @@
+# ══════════════════════════════════════
+# Viktor Systems — .clineignore
+# Aggressive context isolation for AI tools
+# ══════════════════════════════════════
+
+# ── Build artifacts ──
+.next/
+out/
+build/
+dist/
+.turbo/
+.vercel/
+
+# ── Dependencies ──
+node_modules/
+.pnp.*
+.yarn/
+
+# ── Package metadata (large, rarely needed) ──
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# ── TypeScript build cache ──
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# ── Database binary (read via sqlite MCP, not raw) ──
+src/data/viktor.db
+
+# ── Debug & temp files (ROOT CLEANUP TARGETS) ──
+*.log
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+debug_*.html
+debug_*.txt
+debug_screenshots/
+script_output.txt
+test_output.txt
+tmp_*.json
+eslint_report*
+eslint_final*
+
+# ── Scraped HTML dumps ──
+*.html
+!src/**/*.html
+
+# ── Large media assets ──
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.avif
+*.svg
+*.ico
+*.mp4
+*.webm
+!src/**/*.svg
+!public/favicon.ico
+
+# ── IDE & OS ──
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# ── Lighthouse / audit reports ──
+lighthouse-report*
+audit-*.png
+mobile_stress_*.png
+
+# ── External apps (separate project) ──
+ext-apps/
+
+# ── Workers (separate concern) ──
+workers/
+
+# ── Git internals ──
+.git/
+
+# ── Misc root junk ──
+core-*.json
+core-*.html
+core-*.png
+serista-*.html
+eclipse-*.txt

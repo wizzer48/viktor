@@ -1,0 +1,110 @@
+# Viktor Systems — AI Rules (Antigravity / Cline Compatible)
+# Last updated: 2026-02-28
+
+mode: autonomous
+language: en
+framework: next.js (app-router)
+stack: [typescript, tailwind-css, sqlite, better-sqlite3]
+
+# ──────────────────────────────────────
+# 1. TYPESCRIPT
+# ──────────────────────────────────────
+typescript:
+  strict: true
+  no_any: true
+  interfaces_in: src/types/ or co-located
+  prefer: type over interface for unions
+  server_actions: always return { success: boolean, message: string }
+
+# ──────────────────────────────────────
+# 2. NEXT.JS CONVENTIONS
+# ──────────────────────────────────────
+nextjs:
+  router: app
+  rendering:
+    - default: server components
+    - client_only_when: hooks, event handlers, browser APIs
+  data:
+    - single_source: src/data/viktor.db (SQLite)
+    - no_json_files: true
+    - orm: none (raw better-sqlite3)
+  images:
+    - use: next/image always
+    - formats: [webp, avif]
+    - never_store: /public prefix in DB strings
+  metadata:
+    - every_page: title + description + openGraph
+    - single_h1: true
+    - semantic_html: true
+
+# ──────────────────────────────────────
+# 3. TAILWIND & STYLING
+# ──────────────────────────────────────
+styling:
+  approach: mobile-first tailwind
+  theme: dark-mode-first industrial
+  colors:
+    primary: "#1A202C"   # slate-900
+    accent: "#00B4D8"    # cyan
+  fonts:
+    headings: JetBrains Mono
+    body: Inter
+  rules:
+    - no inline styles
+    - no css modules (use tailwind)
+    - responsive breakpoints: sm → md → lg → xl
+    - prefer gap over margin for spacing
+    - max component file: 200 lines (split if larger)
+
+# ──────────────────────────────────────
+# 4. COMPONENT ARCHITECTURE
+# ──────────────────────────────────────
+components:
+  structure:
+    - one component per file
+    - co-locate types with component if small
+    - extract hooks to src/hooks/
+  naming:
+    - PascalCase for components
+    - camelCase for functions/hooks
+    - kebab-case for files/routes
+  rules:
+    - no prop drilling beyond 2 levels → use context
+    - no redundant wrapper divs
+    - no comments explaining obvious code
+    - destructure props in function signature
+
+# ──────────────────────────────────────
+# 5. SEO & PERFORMANCE
+# ──────────────────────────────────────
+seo:
+  - unique meta per page
+  - json-ld structured data for products
+  - semantic headings (h1 > h2 > h3)
+  - alt text on every image
+  - canonical URLs
+
+performance:
+  - lazy load below-fold components
+  - dynamic imports for heavy modules
+  - lighthouse target: 90+
+  - no unnecessary client components
+  - minimize bundle: tree-shake imports
+
+# ──────────────────────────────────────
+# 6. CODE HYGIENE
+# ──────────────────────────────────────
+hygiene:
+  comments:
+    - only explain WHY, never WHAT
+    - no TODO without ticket/issue reference
+    - no commented-out code
+  imports:
+    - use @/ alias always
+    - group: external → internal → types → styles
+  errors:
+    - every try/catch: log + return structured error
+    - never swallow errors silently
+  git:
+    - semantic commits: feat|fix|chore|refactor|docs
+    - commit after every verified feature

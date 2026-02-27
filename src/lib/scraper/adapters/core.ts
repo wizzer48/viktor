@@ -91,7 +91,7 @@ export class CoreAdapter {
             const text = this.$(el).text().trim();
             if (text.toLowerCase().includes('finish') || text.toLowerCase().includes('kaplama') || text.toLowerCase().includes('renk')) {
                 // Try to parse out colors
-                const nextText = el.nextSibling?.textContent || this.$(el).parent().text();
+                const nextText = (el.nextSibling as unknown as { textContent?: string })?.textContent || this.$(el).parent().text();
                 if (nextText) {
                     const colors = nextText.replace(text, '').split(',').map((s: string) => s.trim()).filter((s: string) => s.length > 2);
                     colors.forEach((c: string) => {

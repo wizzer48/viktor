@@ -2,9 +2,19 @@
 
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
-import fs from 'fs/promises';
 import path from 'path';
 import { randomUUID } from 'crypto';
+
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const Database = require('better-sqlite3');
+
+function getDb() {
+    const dbPath = path.join(process.cwd(), 'src', 'data', 'viktor.db');
+    const db = new Database(dbPath);
+    db.pragma('journal_mode = WAL');
+    db.pragma('foreign_keys = ON');
+    return db;
+}
 
 const QuoteSchema = z.object({
     name: z.string().min(2, 'Ad Soyad en az 2 karakter olmalıdır.'),
@@ -14,6 +24,27 @@ const QuoteSchema = z.object({
     notes: z.string().optional(),
     items: z.string() // JSON string of items
 });
+
+export interface QuoteItem {
+    id: string;
+    name: string;
+    quantity: number;
+    brand: string;
+}
+
+export interface Quote {
+    id: string;
+    createdAt: string;
+    status: string;
+    customer: {
+        name: string;
+        company: string;
+        email: string;
+        phone: string;
+    };
+    notes: string;
+    items: QuoteItem[];
+}
 
 export async function submitQuote(prevState: unknown, formData: FormData) {
     // 1. Validate Form Data
@@ -36,7 +67,7 @@ export async function submitQuote(prevState: unknown, formData: FormData) {
 
     const { name, company, email, phone, notes, items: itemsJson } = validatedFields.data;
 
-    let quoteItems = [];
+    let quoteItems: QuoteItem[] = [];
     try {
         quoteItems = JSON.parse(itemsJson);
     } catch {
@@ -47,41 +78,33 @@ export async function submitQuote(prevState: unknown, formData: FormData) {
         return { success: false, message: 'Sepetiniz boş.' };
     }
 
-    // 2. Prepare Quote Data
-    const newQuote = {
-        id: randomUUID(),
-        createdAt: new Date().toISOString(),
-        status: 'new', // new, reviewed, contacted, closed
-        customer: {
-            name,
-            company,
-            email,
-            phone
-        },
-        notes,
-        items: quoteItems
-    };
-
-    // 3. Save to JSON File
+    // 2. Save to SQLite
     try {
-        const filePath = path.join(process.cwd(), 'src/data/quotes.json');
+        const db = getDb();
+        const quoteId = randomUUID();
+        const createdAt = new Date().toISOString();
 
-        let quotes = [];
-        try {
-            const fileContent = await fs.readFile(filePath, 'utf-8');
-            quotes = JSON.parse(fileContent);
-        } catch {
-            // File might not exist or be empty, start fresh
-            quotes = [];
-        }
+        const insertQuote = db.prepare(
+            `INSERT INTO quotes (id, created_at, status, customer_name, customer_company, customer_email, customer_phone, notes)
+             VALUES (?, ?, 'new', ?, ?, ?, ?, ?)`
+        );
 
-        quotes.unshift(newQuote); // Add new quote to the beginning
+        const insertItem = db.prepare(
+            `INSERT INTO quote_items (quote_id, product_id, product_name, quantity, brand)
+             VALUES (?, ?, ?, ?, ?)`
+        );
 
-        // Ensure directory exists
-        await fs.mkdir(path.dirname(filePath), { recursive: true });
-        await fs.writeFile(filePath, JSON.stringify(quotes, null, 2));
+        const tx = db.transaction(() => {
+            insertQuote.run(quoteId, createdAt, name, company || '', email, phone, notes || '');
+            for (const item of quoteItems) {
+                insertItem.run(quoteId, item.id || '', item.name, item.quantity || 1, item.brand || '');
+            }
+        });
 
-        // 4. Revalidate Admin Pages
+        tx();
+        db.close();
+
+        // 3. Revalidate Admin Pages
         revalidatePath('/admin/teklifler');
 
         return { success: true, message: 'Teklif talebiniz başarıyla alındı.' };
@@ -92,12 +115,47 @@ export async function submitQuote(prevState: unknown, formData: FormData) {
     }
 }
 
-export async function getQuotes() {
+export async function getQuotes(): Promise<Quote[]> {
     try {
-        const filePath = path.join(process.cwd(), 'src/data/quotes.json');
-        const fileContent = await fs.readFile(filePath, 'utf-8');
-        return JSON.parse(fileContent);
-    } catch {
+        const db = getDb();
+
+        const quoteRows = db.prepare('SELECT * FROM quotes ORDER BY created_at DESC').all() as {
+            id: string; created_at: string; status: string;
+            customer_name: string; customer_company: string;
+            customer_email: string; customer_phone: string; notes: string;
+        }[];
+
+        const itemStmt = db.prepare('SELECT * FROM quote_items WHERE quote_id = ?');
+
+        const quotes: Quote[] = quoteRows.map(row => {
+            const items = itemStmt.all(row.id) as {
+                product_id: string; product_name: string; quantity: number; brand: string;
+            }[];
+
+            return {
+                id: row.id,
+                createdAt: row.created_at,
+                status: row.status,
+                customer: {
+                    name: row.customer_name,
+                    company: row.customer_company,
+                    email: row.customer_email,
+                    phone: row.customer_phone
+                },
+                notes: row.notes,
+                items: items.map(i => ({
+                    id: i.product_id,
+                    name: i.product_name,
+                    quantity: i.quantity,
+                    brand: i.brand
+                }))
+            };
+        });
+
+        db.close();
+        return quotes;
+    } catch (error) {
+        console.error('getQuotes error:', error);
         return [];
     }
 }

@@ -7,7 +7,16 @@ import { revalidatePath } from 'next/cache';
 import { cache } from 'react';
 import { ProjectSchema } from '@/lib/schemas';
 
-const PROJECTS_FILE = path.join(process.cwd(), 'src', 'data', 'projects.json');
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const Database = require('better-sqlite3');
+
+function getDb() {
+    const dbPath = path.join(process.cwd(), 'src', 'data', 'viktor.db');
+    const db = new Database(dbPath);
+    db.pragma('journal_mode = WAL');
+    db.pragma('foreign_keys = ON');
+    return db;
+}
 
 export interface Project {
     id: string;
@@ -19,21 +28,54 @@ export interface Project {
     imagePath: string;
 }
 
+interface ProjectRow {
+    id: string;
+    name: string;
+    location: string;
+    year: string;
+    description: string;
+    tags: string;
+    image_path: string;
+}
+
+function mapRowToProject(row: ProjectRow): Project {
+    let tags: string[] = [];
+    try { tags = JSON.parse(row.tags || '[]'); } catch { tags = []; }
+
+    return {
+        id: row.id,
+        name: row.name,
+        location: row.location || '',
+        year: row.year || '',
+        description: row.description || '',
+        tags,
+        imagePath: row.image_path || '/placeholder.svg'
+    };
+}
+
 // --- DATA ACCESS ---
 
 export const getProjects = cache(async (): Promise<Project[]> => {
     try {
-        await fs.access(PROJECTS_FILE);
-        const data = await fs.readFile(PROJECTS_FILE, 'utf-8');
-        return JSON.parse(data);
+        const db = getDb();
+        const rows = db.prepare('SELECT * FROM projects').all() as ProjectRow[];
+        db.close();
+        return rows.map(mapRowToProject);
     } catch {
         return [];
     }
 });
 
 export const getProject = cache(async (id: string): Promise<Project | undefined> => {
-    const projects = await getProjects();
-    return projects.find(p => p.id === id);
+    try {
+        const db = getDb();
+        const row = db.prepare('SELECT * FROM projects WHERE id = ?').get(id) as ProjectRow | undefined;
+        db.close();
+        if (!row) return undefined;
+        return mapRowToProject(row);
+    } catch {
+        return undefined;
+    }
 });
 
 // --- HELPERS ---
@@ -45,10 +87,6 @@ function slugify(text: string): string {
     };
     return text.split('').map(char => trMap[char] || char).join('').toLowerCase()
         .replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-');
-}
-
-async function writeProjects(projects: Project[]) {
-    await fs.writeFile(PROJECTS_FILE, JSON.stringify(projects, null, 2));
 }
 
 async function saveFile(file: File): Promise<string> {
@@ -98,54 +136,44 @@ async function saveProject(formData: FormData, mode: 'create' | 'update') {
 
         if (!name) return { success: false, message: 'Missing name' };
 
-        const projects = await getProjects();
-        let project: Project;
+        const db = getDb();
+
+        // Handle Tags (Comma separated)
+        const tags = (tagsRaw || '').split(',').map(t => t.trim()).filter(Boolean);
 
         if (mode === 'create') {
             const baseSlug = slugify(name);
             id = baseSlug;
             let counter = 1;
-            while (projects.some(p => p.id === id)) {
+            while (db.prepare('SELECT id FROM projects WHERE id = ?').get(id)) {
                 id = `${baseSlug}-${counter}`;
                 counter++;
             }
-            project = {
-                id,
-                name,
-                location: location || '',
-                year: year || new Date().getFullYear().toString(),
-                description: description || '',
-                tags: [],
-                imagePath: '/placeholder.svg'
-            };
         } else {
-            const existing = projects.find(p => p.id === id);
-            if (!existing) return { success: false, message: 'Project not found' };
-            project = { ...existing };
-            // Update fields
-            project.name = name;
-            project.location = location || '';
-            project.year = year || '';
-            project.description = description || '';
+            const existing = db.prepare('SELECT id FROM projects WHERE id = ?').get(id);
+            if (!existing) {
+                db.close();
+                return { success: false, message: 'Project not found' };
+            }
         }
-
-        // Handle Tags (Comma separated)
-        project.tags = (tagsRaw || '').split(',').map(t => t.trim()).filter(Boolean);
 
         // Handle Image
+        let imagePath = '/placeholder.svg';
         if (imageFile && imageFile.size > 0) {
-            project.imagePath = await saveFile(imageFile);
+            imagePath = await saveFile(imageFile);
+        } else if (mode === 'update') {
+            const existingRow = db.prepare('SELECT image_path FROM projects WHERE id = ?').get(id) as { image_path: string } | undefined;
+            imagePath = existingRow?.image_path || '/placeholder.svg';
         }
 
-        // Save
-        if (mode === 'create') {
-            projects.push(project);
-        } else {
-            const index = projects.findIndex(p => p.id === id);
-            projects[index] = project;
-        }
+        // Upsert
+        const stmt = db.prepare(`
+            INSERT OR REPLACE INTO projects (id, name, location, year, description, tags, image_path)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        `);
 
-        await writeProjects(projects);
+        stmt.run(id, name, location || '', year || new Date().getFullYear().toString(), description || '', JSON.stringify(tags), imagePath);
+        db.close();
 
         revalidatePath('/referanslar');
         revalidatePath('/admin');
@@ -160,9 +188,14 @@ async function saveProject(formData: FormData, mode: 'create' | 'update') {
 
 export async function deleteProject(id: string) {
     try {
-        const projects = await getProjects();
-        const filtered = projects.filter(p => p.id !== id);
-        await writeProjects(filtered);
+        const db = getDb();
+        const changes = db.prepare('DELETE FROM projects WHERE id = ?').run(id).changes;
+        db.close();
+
+        if (changes === 0) {
+            return { success: false, message: 'Project not found' };
+        }
+
         revalidatePath('/referanslar');
         revalidatePath('/admin');
         revalidatePath('/admin/referanslar');

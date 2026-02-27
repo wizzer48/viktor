@@ -1,41 +1,65 @@
-import categoryMap from '@/data/category-map.json';
+import path from 'path';
 import { Brand } from './types';
 
-// Define the structure of the JSON file for type safety
-interface CategoryMap {
-    GlobalRules: Record<string, string[]>;
-    BrandSpecific: Record<string, Record<string, string>>;
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const Database = require('better-sqlite3');
+
+function getDb() {
+    const dbPath = path.join(process.cwd(), 'src', 'data', 'viktor.db');
+    const db = new Database(dbPath);
+    db.pragma('journal_mode = WAL');
+    return db;
 }
 
-const mapData = categoryMap as CategoryMap;
+interface GlobalRuleRow {
+    target_category: string;
+    keyword: string;
+}
+
+interface BrandRuleRow {
+    brand: string;
+    source_category: string;
+    target_category: string;
+}
 
 export function normalizeCategory(brand: Brand, originalCategory: string): string {
     if (!originalCategory) return "Ev Çözümleri";
 
-    // 1. Check Brand Specific Rules first (High Priority)
-    if (mapData.BrandSpecific[brand]) {
-        const brandRules = mapData.BrandSpecific[brand];
+    const db = getDb();
+
+    try {
+        // 1. Check Brand Specific Rules first (High Priority)
+        const brandRules = db.prepare(
+            'SELECT source_category, target_category FROM category_brand_rules WHERE brand = ?'
+        ).all(brand) as BrandRuleRow[];
+
         // Exact match check
-        if (brandRules[originalCategory]) {
-            return brandRules[originalCategory];
+        for (const rule of brandRules) {
+            if (rule.source_category === originalCategory) {
+                return rule.target_category;
+            }
         }
         // Partial match check
-        for (const [key, value] of Object.entries(brandRules)) {
-            if (originalCategory.toLowerCase().includes(key.toLowerCase())) {
-                return value;
+        for (const rule of brandRules) {
+            if (originalCategory.toLowerCase().includes(rule.source_category.toLowerCase())) {
+                return rule.target_category;
             }
         }
-    }
 
-    // 2. Check Global Rules (Keyword based)
-    for (const [targetCategory, keywords] of Object.entries(mapData.GlobalRules)) {
-        for (const keyword of keywords) {
-            if (originalCategory.toLowerCase().includes(keyword.toLowerCase())) {
-                return targetCategory;
+        // 2. Check Global Rules (Keyword based)
+        const globalRules = db.prepare(
+            'SELECT target_category, keyword FROM category_global_rules'
+        ).all() as GlobalRuleRow[];
+
+        for (const rule of globalRules) {
+            if (originalCategory.toLowerCase().includes(rule.keyword.toLowerCase())) {
+                return rule.target_category;
             }
         }
-    }
 
-    // 3. Fallback
-    return "Ev Çözümleri";
+        // 3. Fallback
+        return "Ev Çözümleri";
+    } finally {
+        db.close();
+    }
 }
